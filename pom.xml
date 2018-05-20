@@ -2,8 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jeecgframework</groupId>
-	<artifactId>jeecg</artifactId>
-	<version>3.7.3</version>
+	<artifactId>OnlineStoreMS</artifactId>
+	<version>1.0.0</version>
 	<packaging>war</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -1019,7 +1019,7 @@
 	                <artifactId>tomcat-maven-plugin</artifactId>
 	                <version>1.1</version>
 	                <configuration>
-	                    <path>/jeecg</path>
+	                    <path>/OnlineStoreMS</path>
 	                    <port>8080</port>
 	                    <uriEncoding>UTF-8</uriEncoding>
 	                    <url>http://localhost:8080/manager/html</url>
@@ -1079,7 +1079,7 @@
 		    </plugin>
 			
 		</plugins>
-		<finalName>jeecg</finalName>
+		<finalName>OnlineStoreMS</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/java</directory>

@@ -11,7 +11,7 @@
 <head>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta charset="utf-8" />
-  <title><t:mutiLang langKey="jeect.platform"/></title>
+  <title>淘宝商品采集系统</title>
    <link rel="shortcut icon" href="images/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <!-- bootstrap & fontawesome -->
@@ -50,10 +50,8 @@
         <div class="login-container">
           <div class="center">
             <h1 id="id-text2" class="grey">
-              <i class="ace-icon fa fa-leaf green"></i>
-               JEECG 演示系统
+                淘宝商品采集系统
             </h1>
-            <h4 class="blue" id="id-company-text">www.jeecg.org</h4>
           </div>
           <div class="space-6"></div>
           <div class="position-relative">
@@ -85,32 +83,32 @@
 									<i class="ace-icon fa fa-lock"></i>
 								</span>
                       </label>
-                      <label class="block clearfix">
+                      <%--<label class="block clearfix">
                         <div class="input-group">
                           <input type="text" style="width:150px" name="randCode" class="form-control" placeholder="请输入验证码"  id="randCode"/>
                           <span class="input-group-addon" style="padding: 0px;"><img id="randCodeImage" src="randCodeImage"  /></span>
                         </div>
-                      </label>
+                      </label>--%>
                       <div class="space"></div>
                       <div class="clearfix">
                         <label class="inline">
                           <input type="checkbox" class="ace" id="on_off"  name="remember" value="yes"/>
                           <span class="lbl">记住用户名</span>
                         </label>
-                        <span> | <a href="http://demo.jeecg.org/mLoginController.do?login&from=singlemessage&isappinstalled=0"><i class="ace-icon fa fa-location-arrow"></i><font color='#428bca'>移动OA</font></a></span>
-                         <span> | <a href="http://yun.jeecg.org" target="_blank"><i class="ace-icon fa fa-cube"></i><font color='#428bca'>插件中心</font></a></span>
+                        <%--<span> | <a href="http://demo.jeecg.org/mLoginController.do?login&from=singlemessage&isappinstalled=0"><i class="ace-icon fa fa-location-arrow"></i><font color='#428bca'>移动OA</font></a></span>
+                         <span> | <a href="http://yun.jeecg.org" target="_blank"><i class="ace-icon fa fa-cube"></i><font color='#428bca'>插件中心</font></a></span>--%>
                         <button type="button" id="but_login"  onclick="checkUser()" class="width-35 pull-right btn btn-sm btn-primary">
                           <i class="ace-icon fa fa-key"></i>
                           <span class="bigger-110" >登录</span>
                         </button>
                         <!-- //update--begin--author:zhangjiaqiang date:20170929 for:TASK #2341 【新功能】邮件找回密码的功能，向用户邮箱发一个修改密码的链接，自助修改密码-->
-                        <a href="loginController.do?goResetPwdMail" class="btn btn-link">忘记密码 ?</a>
+                        <%--<a href="loginController.do?goResetPwdMail" class="btn btn-link">忘记密码 ?</a>--%>
                          <!-- //update--begin--author:zhangjiaqiang date:20170929 for:TASK #2341 【新功能】邮件找回密码的功能，向用户邮箱发一个修改密码的链接，自助修改密码-->
                       </div>
                       <div class="space-4"></div>
 
                 </div>
-                <div class="toolbar clearfix">
+                <%--<div class="toolbar clearfix">
                   <div style="float: right">
                     <a href="#"  class="forgot-password-link">
                     	  语言
@@ -118,12 +116,12 @@
                       <t:dictSelect id="langCode" field="langCode" typeGroupCode="lang" hasLabel="false" extendJson="{style:'padding:2px; width:80px;'}" defaultVal="zh-cn"></t:dictSelect>
                     </a>
                   </div>
-                </div>
+                </div>--%>
                 </form>
               </div>
             </div>
-            <div class="center"><h4 class="blue" id="id-company-text">&copy; JEECG版权所有 v_3.7.3</h4></div>
-            <div class="navbar-fixed-top align-right">
+            <div class="center"><%--<h4 class="blue" id="id-company-text">&copy; JEECG版权所有 v_3.7.3</h4>--%></div>
+            <%--<div class="navbar-fixed-top align-right">
               <br />
               &nbsp;
               <a id="btn-login-dark" class="blue" href="#" onclick="darkStyle()">Dark</a>
@@ -136,7 +134,7 @@
               &nbsp;
               <a id="btn-login-light" class="blue" href="#" onclick="lightStyle()">Light</a>
               &nbsp; &nbsp; &nbsp;
-            </div>
+            </div>--%>
               </div>
             </div>
           </div>
@@ -191,10 +189,10 @@
       return false;
     }
 
-    if($.trim($("#randCode").val()).length==0){
+    /*if($.trim($("#randCode").val()).length==0){
       showErrorMsg("请输入验证码");
       return false;
-    }
+    }*/
     return true;
   }
 

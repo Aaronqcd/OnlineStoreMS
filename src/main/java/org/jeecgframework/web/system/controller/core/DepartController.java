@@ -1,15 +1,7 @@
 package org.jeecgframework.web.system.controller.core;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
@@ -23,14 +15,7 @@ import org.jeecgframework.core.common.model.json.ComboTree;
 import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.common.model.json.TreeGrid;
 import org.jeecgframework.core.constant.Globals;
-import org.jeecgframework.core.util.ExceptionUtil;
-import org.jeecgframework.core.util.LogUtil;
-import org.jeecgframework.core.util.MutiLangUtil;
-import org.jeecgframework.core.util.MyBeanUtils;
-import org.jeecgframework.core.util.ResourceUtil;
-import org.jeecgframework.core.util.StringUtil;
-import org.jeecgframework.core.util.YouBianCodeUtil;
-import org.jeecgframework.core.util.oConvertUtils;
+import org.jeecgframework.core.util.*;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
@@ -56,8 +41,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -116,27 +103,27 @@ public class DepartController extends BaseController {
 		TagUtil.datagrid(response, dataGrid);
 	}
 
-		@RequestMapping(params = "delUserOrg")
-		@ResponseBody
-		public AjaxJson delUserOrg(@RequestParam(required=true)String userid,@RequestParam(required=true)String departid) {
-			AjaxJson ajaxJson = new AjaxJson();
-			try {
-				List<TSUserOrg> userOrgList = this.systemService.findByProperty(TSUserOrg.class, "tsUser.id", userid);
-				if(userOrgList.size() == 1){
-					ajaxJson.setSuccess(false);
-					ajaxJson.setMsg("当前用户只包含有当前组织机构关系，不可删除，请切换用户的组织机构关系");
-				}else{
-					String sql = "delete from t_s_user_org where user_id = '"+userid+"' and org_id = '"+departid+"'";
-					this.systemService.executeSql(sql);
-					ajaxJson.setMsg("成功删除用户对应的组织机构关系");
-				}
-			} catch (Exception e) {
-				LogUtil.log("删除用户对应的组织机构关系失败", e.getMessage());
+	@RequestMapping(params = "delUserOrg")
+	@ResponseBody
+	public AjaxJson delUserOrg(@RequestParam(required=true)String userid,@RequestParam(required=true)String departid) {
+		AjaxJson ajaxJson = new AjaxJson();
+		try {
+			List<TSUserOrg> userOrgList = this.systemService.findByProperty(TSUserOrg.class, "tsUser.id", userid);
+			if(userOrgList.size() == 1){
 				ajaxJson.setSuccess(false);
-				ajaxJson.setMsg(e.getMessage());
+				ajaxJson.setMsg("当前用户只包含有当前组织机构关系，不可删除，请切换用户的组织机构关系");
+			}else{
+				String sql = "delete from t_s_user_org where user_id = '"+userid+"' and org_id = '"+departid+"'";
+				this.systemService.executeSql(sql);
+				ajaxJson.setMsg("成功删除用户对应的组织机构关系");
 			}
-			return ajaxJson;
+		} catch (Exception e) {
+			LogUtil.log("删除用户对应的组织机构关系失败", e.getMessage());
+			ajaxJson.setSuccess(false);
+			ajaxJson.setMsg(e.getMessage());
 		}
+		return ajaxJson;
+	}
 
 	/**
 	 * 删除部门：
