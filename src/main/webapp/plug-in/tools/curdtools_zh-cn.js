@@ -1,12 +1,11 @@
-﻿﻿﻿﻿// update--begin--author:zhangjiaqiang date:20170621 for:如何避免console.log引起javascript的兼容问题 
+﻿// update--begin--author:zhangjiaqiang date:20170621 for:如何避免console.log引起javascript的兼容问题
 if(!window.console){
     window.console = {};
 }
 if(!window.console.log){
     window.console.log = function(msg){};
 }
-
-﻿var basePath;
+var basePath;
 try{
 	var local = window.location;  
 	var contextPath = local.pathname.split("/")[1];  
@@ -1308,7 +1307,7 @@ function popupClick(pobj,tablefield,inputnames,pcode) {
 						    	//判断传入的this格式是否为 "AA[#index#].aa"的形式
 						    	if(str.indexOf("undefined")==-1){
 						    		if(inputs.length>1){
-						    		﻿	//update--begin--author:scott date:20171031 for:TASK #2385 online和代码生成器 一对多行popup多字段赋值问题解决-----------
+										//update--begin--author:scott date:20171031 for:TASK #2385 online和代码生成器 一对多行popup多字段赋值问题解决-----------
 						    			var inpu = inputs[0]+"."+inputfield[i1];
 
 						    			$("input[name='"+inpu+"']").val(str);
