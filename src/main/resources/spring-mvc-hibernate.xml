@@ -111,6 +111,7 @@
 				<value>org.jeecgframework.web.graphreport.entity.*</value>
 				<value>org.jeecgframework.web.system.sms.*</value>
 				<value>com.jeecg.*</value>
+				<value>com.online.*</value>
 			</list>
 		</property>
 	</bean>
