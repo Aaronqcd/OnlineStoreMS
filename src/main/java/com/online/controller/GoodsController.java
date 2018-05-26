@@ -7,10 +7,13 @@ import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @description 商品管理controller
@@ -28,15 +31,19 @@ public class GoodsController extends BaseController {
         return "online/goods/goodsList1";
     }
 
-    @RequestMapping(value = "/showAll")
+    @RequestMapping(value = "/showAll",method = RequestMethod.GET)
     public String findAllCourse(HttpServletRequest request, HttpServletResponse response) {
         try {
             String pageNo = request.getParameter("pageNo");
+            String title = request.getParameter("title");
             if (pageNo == null) {
                 pageNo = "1";
             }
-            Page page = goodsService.queryForPage(Integer.valueOf(pageNo), 10);
+            Map<String,String> map = new HashMap<>();
+            map.put("title", title);
+            Page page = goodsService.queryForPage(Integer.valueOf(pageNo), 10, map);
             request.setAttribute("page", page);
+            request.setAttribute("map", map);
             List<GoodsEntity> goods = page.getList();
             request.setAttribute("goods", goods);
         } catch (Exception e) {

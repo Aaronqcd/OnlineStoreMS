@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @description 商品管理Service实现类
@@ -26,14 +27,14 @@ public class GoodServiceImpl implements GoodsService {
      * */
     @SuppressWarnings("unchecked")
     @Override
-    public Page queryForPage(int currentPage,int pageSize) {
+    public Page queryForPage(int currentPage,int pageSize, Map<String,String> map) {
         Page page = new Page();
         //总记录数
-        int allRow = goodsDao.getAllRowCount();
+        int allRow = goodsDao.getAllRowCount(map);
         //当前页开始记录
         int offset = page.countOffset(currentPage,pageSize);
         //分页查询结果集
-        List<GoodsEntity> list = goodsDao.queryForPage(offset, pageSize);
+        List<GoodsEntity> list = goodsDao.queryForPage(offset, pageSize, map);
 
         page.setPageNo(currentPage);
         page.setPageSize(pageSize);

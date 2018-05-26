@@ -1,14 +1,13 @@
 package com.online.dao;
 
 import com.online.entity.GoodsEntity;
-import org.hibernate.Query;
-import org.jeecgframework.core.common.dao.ICommonDao;
-import org.jeecgframework.core.common.dao.IGenericBaseCommonDao;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Expression;
 import org.jeecgframework.core.common.dao.impl.CommonDao;
-import org.jeecgframework.core.common.dao.impl.GenericBaseCommonDao;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @description 商品管理Dao
@@ -24,13 +23,16 @@ public class GoodsDao extends CommonDao {
      * @return 返回查询记录集合
      */
     @SuppressWarnings("unchecked")
-    public List<GoodsEntity> queryForPage(int offset, int length) {
+    public List<GoodsEntity> queryForPage(int offset, int length, Map<String,String> map) {
         List<GoodsEntity> entitylist=null;
         try{
-            Query query = getSession().createQuery("from GoodsEntity");
-            query.setFirstResult(offset);
-            query.setMaxResults(length);
-            entitylist = query.list();
+            Criteria criteria = getSession().createCriteria(GoodsEntity.class);
+            if(map.get("title")!=null && !"".equals(map.get("title"))) {
+                criteria.add(Expression.like("title", "%"+map.get("title")+"%"));
+            }
+            criteria.setFirstResult(offset);
+            criteria.setMaxResults(length);
+            entitylist = criteria.list();
 
         }catch(RuntimeException re){
             throw re;
@@ -43,9 +45,12 @@ public class GoodsDao extends CommonDao {
      * 获取商品总记录数
      * @return
      */
-    public int getAllRowCount() {
-        Query query = getSession().createQuery("from GoodsEntity");
-        int count = query.list().size();
+    public int getAllRowCount(Map<String,String> map) {
+        Criteria criteria = getSession().createCriteria(GoodsEntity.class);
+        if(map.get("title")!=null && !"".equals(map.get("title"))) {
+            criteria.add(Expression.like("title", "%"+map.get("title")+"%"));
+        }
+        int count = criteria.list().size();
         return count;
     }
 }
