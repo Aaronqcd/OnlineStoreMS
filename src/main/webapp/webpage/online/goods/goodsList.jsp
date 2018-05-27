@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="${webRoot}/plug-in/bootstrap-3.3.7/css/bootstrap.css" />
     <script type="text/javascript" src="${webRoot}/plug-in/jquery/jquery-1.9.1.js"></script>
     <script type="text/javascript" src="${webRoot}/plug-in/bootstrap-3.3.7/js/bootstrap.js"></script>
+    <script type="text/javascript" src="${webRoot}/plug-in/layer/layer.js"></script>
     <%--<style>
         img{
             -webkit-transition: ease .2s;
@@ -39,7 +40,7 @@
             <c:forEach var="good" items="${goods}">
             <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6"><!-- 大屏幕放4张略缩图，pc端放3张，平板和手机放2张-->
                 <div class="thumbnail">
-                    <img src="${good.picture1}" alt="..."
+                    <img src="${good.picture1}" title="商品图片"
                          class="img-responsive" style="width: 220px;height:220px">
                     <div class="caption">
                         <h4>¥${good.price}</h4>
@@ -47,13 +48,16 @@
                             <c:set var="title" value="${fn:replace(good.title,' ','')}" />
                             <c:choose>
                                 <c:when test="${fn:length(title)>22}">
-                                    <a href="javascript:void(0)" title="${title}">${fn:substring(title, 0, 22)}...</a>
+                                    <a href="javascript:void(0)" title="${title}" onclick="detail(${good.id})">${fn:substring(title, 0, 22)}...</a>
                                 </c:when>
                                 <c:otherwise>
-                                    <a href="javascript:void(0)" title="${title}">${title}</a>
+                                    <a href="javascript:void(0)" title="${title}" onclick="detail(${good.id})">${title}</a>
                                 </c:otherwise>
                             </c:choose>
                         </p>
+                        <div style="text-align:right">
+                            <input type="checkbox" value="${good.id}"/>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -108,6 +112,8 @@
             $(this).removeClass('hover')
         });
     });*/
+    var screenHeight = window.screen.height;
+    var detailUrl = "${webRoot}/goodsController/detail.do";
     $('#skipPage').bind('keydown',function(event){
         if(event.keyCode == "13") {
             skipPage();
@@ -178,6 +184,35 @@
             url += "&title="+title;
         }
         location.href = url;
+    }
+    function detail(id) {
+        if(screenHeight<=900) {
+            layer.open({
+                type: 2,
+                title: '商品详情',
+                maxmin: true,
+                offset: '50px',
+                area: ['900px', '400px'],
+                scrollbar: false,
+                content: detailUrl+"?id="+id,
+                end: function(){
+                    //reload();
+                }
+            });
+        }
+        else {
+            layer.open({
+                type: 2,
+                title: '商品详情',
+                maxmin: true,
+                area: ['900px', '700px'],
+                scrollbar: false,
+                content: detailUrl+"?id="+id,
+                end: function(){
+                    //reload();
+                }
+            });
+        }
     }
 </script>
 </html>

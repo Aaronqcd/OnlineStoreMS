@@ -16,7 +16,7 @@ import java.util.Map;
  * @date        2018/05/22
  */
 @Service
-public class GoodServiceImpl implements GoodsService {
+public class GoodsServiceImpl implements GoodsService {
     @Autowired
     private GoodsDao goodsDao;
     /**
@@ -42,5 +42,15 @@ public class GoodServiceImpl implements GoodsService {
         page.setList(list);
 
         return page;
+    }
+
+    /**
+     * 根据商品id获取商品信息
+     * @param id
+     * @return
+     */
+    public GoodsEntity getDataById(Integer id) {
+        GoodsEntity goods = (GoodsEntity) goodsDao.get(GoodsEntity.class, id);
+        return goods;
     }
 }

@@ -31,6 +31,12 @@ public class GoodsController extends BaseController {
         return "online/goods/goodsList1";
     }
 
+    /**
+     * 分页查询
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping(value = "/showAll",method = RequestMethod.GET)
     public String findAllCourse(HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -50,5 +56,19 @@ public class GoodsController extends BaseController {
             e.printStackTrace();
         }
         return "online/goods/goodsList";
+    }
+
+    /**
+     * 根据商品id获取商品信息
+     * @param id
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/detail",method = RequestMethod.GET)
+    public String detail(Integer id, HttpServletRequest request, HttpServletResponse response) {
+        GoodsEntity goods = goodsService.getDataById(id);
+        request.setAttribute("goods", goods);
+        return "online/goods/detail";
     }
 }
