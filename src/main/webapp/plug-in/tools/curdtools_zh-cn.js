@@ -38,7 +38,7 @@ try {
  * @param flag true: 不增量(因为 tip提示经常使用 zIndex, 所以如果是 tip的话 ,则不增量)
  * @returns
  */
-function getzIndex(flag){
+/*function getzIndex(flag){
 	var zindexNumber = getCookie("ZINDEXNUMBER");
 	if(zindexNumber == null){
 		zindexNumber = 2010;
@@ -52,7 +52,54 @@ function getzIndex(flag){
 		setCookie("ZINDEXNUMBER",n);
 	}
 	return zindexNumber;
-} 
+}*/
+
+function getzIndex(flag){
+	var zindexNumber = getSession("ZINDEXNUMBER");
+	if(zindexNumber == null||zindexNumber == "null"){
+		zindexNumber = 2010;
+		setSession("ZINDEXNUMBER",zindexNumber);
+		//zindexNumber = 1980;
+	}else{
+		if(zindexNumber < 2010){
+			zindexNumber = 2010;
+		}
+		var n = flag?zindexNumber:parseInt(zindexNumber) + parseInt(10);
+		setSession("ZINDEXNUMBER",n);
+		zindexNumber=n;
+	}
+	return zindexNumber;
+}
+
+function getSession(name){
+	var result=null;
+	$.ajax({
+		url :'commodityController.do?getSession&name='+name,
+		type : 'get',
+		async: false,
+		dataType : 'json',
+		success : function(data) {
+			result=data;
+		},
+		error : function(msg){
+			result=null;
+		}
+	});
+	return result;
+}
+function setSession(name,value){
+	$.ajax({
+		url : 'commodityController.do?setSession&name='+name+'&value='+value,
+		type : 'POST',
+		async: false,
+		dataType : 'json',
+		success : function(data) {
+		},
+		error : function(msg){
+			//	alert('树加载异常!');
+		}
+	});
+}
 
 function upload(curform) {
 	upload();
