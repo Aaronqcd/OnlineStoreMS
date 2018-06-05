@@ -64,7 +64,7 @@ public class LightEntity implements java.io.Serializable {
 	@Excel(name="备注",width=15)
 	private String comment;
 	/**图片*/
-	@Excel(name="图片",width=15)
+	@Excel(name="图片",width=15,type=2)
 	private String pic;
 	
 	/**

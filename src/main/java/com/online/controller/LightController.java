@@ -8,6 +8,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.common.exception.BusinessException;
@@ -43,10 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**   
  * @Title: Controller  
@@ -319,6 +319,69 @@ public class LightController extends BaseController {
 					e.printStackTrace();
 				}
 			}
+		}
+		return j;
+	}
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping(params = "importExcel2", method = RequestMethod.POST)
+	@ResponseBody
+	public AjaxJson importExcel2(HttpServletRequest request, HttpServletResponse response) {
+		AjaxJson j = new AjaxJson();
+		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+		Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+		for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
+			MultipartFile file = entity.getValue();// 获取上传文件对象
+			HSSFWorkbook workbook = null;
+			try {
+				workbook = (HSSFWorkbook) WorkbookFactory.create(file.getInputStream());
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InvalidFormatException e) {
+				e.printStackTrace();
+			}
+			List<HSSFPictureData> pictures = workbook.getAllPictures();
+			HSSFSheet sheet = (HSSFSheet) workbook.getSheetAt(0);
+			Map<String,Object> map = new HashMap<String,Object>();
+			/*for (int i = 1; i < sheet.getLastRowNum(); i++) {
+				HSSFRow row= sheet.getRow(i);
+				if(row!=null){
+					row.getCell(j)
+				}
+			}*/
+			for (HSSFShape shape : sheet.getDrawingPatriarch().getChildren()) {
+				HSSFClientAnchor anchor = (HSSFClientAnchor) shape.getAnchor();
+				if (shape instanceof HSSFPicture) {
+					HSSFPicture pic = (HSSFPicture) shape;
+					int row = anchor.getRow2();
+					int col = anchor.getCol2();
+					int pictureIndex = pic.getPictureIndex()-1;
+					HSSFPictureData picData = pictures.get(pictureIndex);
+				}
+			}
+			/*ImportParams params = new ImportParams();
+			params.setTitleRows(2);
+			params.setHeadRows(1);
+			params.setNeedSave(true);
+			try {
+				List<LightEntity> listLightEntitys = ExcelImportUtil.importExcel(file.getInputStream(),LightEntity.class,params);
+				for (LightEntity light : listLightEntitys) {
+					String serial = light.getSerial();
+					serial = serial.replace(".0","");
+					light.setSerial(serial);
+					lightService.save(light);
+				}
+				j.setMsg("文件导入成功！");
+			} catch (Exception e) {
+				j.setMsg("文件导入失败！");
+				logger.error(ExceptionUtil.getExceptionMessage(e));
+			}finally{
+				try {
+					file.getInputStream().close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}*/
 		}
 		return j;
 	}
