@@ -2,61 +2,53 @@
 <%@include file="/context/mytags.jsp"%>
 <html>
 <head>
-    <title>商品列表</title>
+    <title>灯具列表</title>
     <link rel="stylesheet" type="text/css" href="${webRoot}/plug-in/bootstrap-3.3.7/css/bootstrap.css" />
     <script type="text/javascript" src="${webRoot}/plug-in/jquery/jquery-1.9.1.js"></script>
     <script type="text/javascript" src="${webRoot}/plug-in/bootstrap-3.3.7/js/bootstrap.js"></script>
     <script type="text/javascript" src="${webRoot}/plug-in/layer/layer.js"></script>
-    <%--<style>
-        img{
-            -webkit-transition: ease .2s;
-            transition: ease .2s;
-            -webkit-transform-origin:50% 50%; /* transform-origin默认值就是居中，可以不加 */
-            transform-origin:50% 50%; /* transform-origin默认值就是居中，可以不加 */
-        }
-        .hover{
-            -webkit-transform: scale(1.5); /*放大1.2倍*/
-            transform: scale(1.5); /*放大1.2倍*/
-        }
-    </style>--%>
+    <script type="text/javascript" src="${webRoot}/plug-in/lhgDialog/lhgdialog.min.js?skin=metrole"></script>
+    <script type="text/javascript" src="${webRoot}/plug-in/tools/curdtools_zh-cn.js"></script>
 </head>
 <body>
     <div class="container">  <!-- 开加一个container的目的是为了让整体布局居中 -->
         <div class="row" style="border: 1px solid #ddd;border-radius: 4px;padding-top: 10px;margin-top: 10px">
             <form class="form-inline" style="padding-left: 10px">
                 <div class="form-group">
-                    <label for="title">商品标题</label>
-                    <input type="text" class="form-control" id="title" name="title" placeholder="请输入商品标题"
-                    value="${map['title']}">
+                    <label for="productName">产品名称</label>
+                    <input type="text" class="form-control" id="productName" name="productName" placeholder="请输入产品名称"
+                    value="${map['productName']}">
                 </div>
                 <button type="button" class="btn btn-primary" onclick="query()">查询</button>
-                <button type="button" class="btn btn-default" onclick="empty()">重置</button>
+                <button type="button" class="btn btn-primary" onclick="empty()">重置</button>
+                <button type="button" class="btn btn-primary" onclick="edit()">编辑</button>
+                <button type="button" class="btn btn-primary" onclick="importXls()">导入</button>
             </form>
         </div>
         <!-- 开始 -->
         <div class="row" style="padding-top:10px"><!-- 将要加入的略缩图放入row中 -->
         <c:choose>
             <c:when test="${page.totalRecords>0}">
-            <c:forEach var="good" items="${goods}">
+            <c:forEach var="light" items="${lights}">
             <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6"><!-- 大屏幕放4张略缩图，pc端放3张，平板和手机放2张-->
                 <div class="thumbnail">
-                    <img src="${good.picture1}" title="商品图片"
+                    <img src="${webRoot}/${light.pic}" title="商品图片"
                          class="img-responsive" style="width: 220px;height:220px">
                     <div class="caption">
-                        <h4>¥${good.price}</h4>
+                        <h4>¥${light.price}</h4>
                         <p style="color:red;">
-                            <c:set var="title" value="${fn:replace(good.title,' ','')}" />
+                            <c:set var="productName" value="${fn:replace(light.productName,' ','')}" />
                             <c:choose>
-                                <c:when test="${fn:length(title)>22}">
-                                    <a href="javascript:void(0)" title="${title}" onclick="detail(${good.id})">${fn:substring(title, 0, 22)}...</a>
+                                <c:when test="${fn:length(productName)>22}">
+                                    <a href="javascript:void(0)" title="${productName}" onclick="detail('${light.id}')">${fn:substring(productName, 0, 22)}...</a>
                                 </c:when>
                                 <c:otherwise>
-                                    <a href="javascript:void(0)" title="${title}" onclick="detail(${good.id})">${title}</a>
+                                    <a href="javascript:void(0)" title="${productName}" onclick="detail('${light.id}')">${productName}</a>
                                 </c:otherwise>
                             </c:choose>
                         </p>
                         <div style="text-align:right">
-                            <input type="checkbox" value="${good.id}"/>
+                            <input type="checkbox" name="lightId" value="${light.id}"/>
                         </div>
                     </div>
                 </div>
@@ -105,15 +97,10 @@
 
 </body>
 <script>
-    /*$(function() {
-        $('img').hover(function(){
-            $(this).addClass('hover')
-        },function(){
-            $(this).removeClass('hover')
-        });
-    });*/
     var screenHeight = window.screen.height;
-    var detailUrl = "${webRoot}/goodsController/detail.do";
+    var detailUrl = "${webRoot}/lightController/detail.do";
+    var leadInUrl = "${webRoot}/lightController/leadIn.do";
+    var editUrl = "${webRoot}/lightController/goEdit.do";
     $('#skipPage').bind('keydown',function(event){
         if(event.keyCode == "13") {
             skipPage();
@@ -136,26 +123,22 @@
                 return false;
             }
             else {
-                location.href="${webRoot}/goodsController/showAll.do?pageNo="+skipPage;
+                location.href="${webRoot}/lightController/showAll.do?pageNo="+skipPage;
             }
         }
     }
     function query() {
-        var title = $("#title").val();
-        /*if(title=='') {
-            alert("请输入商品标题");
-            return false;
-        }*/
+        var productName = $("#productName").val();
         var pageNo = ${page.pageNo};
-        location.href="${webRoot}/goodsController/showAll.do?pageNo="+pageNo+"&title="+title;
+        location.href="${webRoot}/lightController/showAll.do?pageNo="+pageNo+"&productName="+productName;
     }
     function empty() {
         $("#title").val('');
-        location.href="${webRoot}/goodsController/showAll.do";
+        location.href="${webRoot}/lightController/showAll.do";
     }
     function topPage() {
         var title = $("#title").val();
-        var url = "${webRoot}/goodsController/showAll.do?pageNo=${page.topPageNo }";
+        var url = "${webRoot}/lightController/showAll.do?pageNo=${page.topPageNo }";
         if(title!='') {
             url += "&title="+title;
         }
@@ -163,7 +146,7 @@
     }
     function previousPage() {
         var title = $("#title").val();
-        var url = "${webRoot}/goodsController/showAll.do?pageNo=${page.previousPageNo }";
+        var url = "${webRoot}/lightController/showAll.do?pageNo=${page.previousPageNo }";
         if(title!='') {
             url += "&title="+title;
         }
@@ -171,7 +154,7 @@
     }
     function nextPage() {
         var title = $("#title").val();
-        var url = "${webRoot}/goodsController/showAll.do?pageNo=${page.nextPageNo }";
+        var url = "${webRoot}/lightController/showAll.do?pageNo=${page.nextPageNo }";
         if(title!='') {
             url += "&title="+title;
         }
@@ -179,7 +162,7 @@
     }
     function bottomPage() {
         var title = $("#title").val();
-        var url = "${webRoot}/goodsController/showAll.do?pageNo=${page.bottomPageNo }";
+        var url = "${webRoot}/lightController/showAll.do?pageNo=${page.bottomPageNo }";
         if(title!='') {
             url += "&title="+title;
         }
@@ -196,7 +179,6 @@
                 scrollbar: false,
                 content: detailUrl+"?id="+id,
                 end: function(){
-                    //reload();
                 }
             });
         }
@@ -209,7 +191,78 @@
                 scrollbar: false,
                 content: detailUrl+"?id="+id,
                 end: function(){
-                    //reload();
+                }
+            });
+        }
+    }
+    //导入
+    function importXls() {
+        if(screenHeight<=900) {
+            layer.open({
+                type: 2,
+                title: '导入',
+                maxmin: true,
+                area: ['800px', '400px'],
+                content: leadInUrl,
+                end: function(){
+                    location.href="${webRoot}/lightController/showAll.do?pageNo=1";
+                }
+            });
+        }
+        else {
+            layer.open({
+                type: 2,
+                title: '导入',
+                maxmin: true,
+                area: ['800px', '700px'],
+                content: leadInUrl,
+                end: function(){
+                    location.href="${webRoot}/lightController/showAll.do?pageNo=1";
+                }
+            });
+        }
+    }
+
+    function edit() {
+        var lightIds=new Array();
+        $("input[name='lightId']:checkbox").each(function(){
+            if($(this).prop("checked")){
+                lightIds.push($(this).val());
+            }
+        });
+        if(lightIds.length==0){
+            alert('请选择数据!');
+            return false;
+        }
+        else if(lightIds.length>1){
+            alert('只能选择1条数据!');
+            return false;
+        }
+        var lightId= lightIds.join(',');
+        if(screenHeight<=900) {
+            layer.open({
+                type: 2,
+                title: '修改商品信息',
+                maxmin: true,
+                offset: '50px',
+                area: ['900px', '400px'],
+                scrollbar: false,
+                content: editUrl+"?id="+lightId+"&pageNo=${page.pageNo}",
+                end: function(){
+                    location.href="${webRoot}/lightController/showAll.do?pageNo=${page.pageNo}";
+                }
+            });
+        }
+        else {
+            layer.open({
+                type: 2,
+                title: '修改商品信息',
+                maxmin: true,
+                area: ['900px', '700px'],
+                scrollbar: false,
+                content: editUrl+"?id="+lightId+"&pageNo=${page.pageNo}",
+                end: function(){
+                    location.href="${webRoot}/lightController/showAll.do?pageNo=${page.pageNo}";
                 }
             });
         }

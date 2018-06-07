@@ -74,7 +74,7 @@ function getzIndex(flag){
 function getSession(name){
 	var result=null;
 	$.ajax({
-		url :'commodityController.do?getSession&name='+name,
+		url : basePath+'/commodityController.do?getSession&name='+name,
 		type : 'get',
 		async: false,
 		dataType : 'json',
@@ -89,7 +89,7 @@ function getSession(name){
 }
 function setSession(name,value){
 	$.ajax({
-		url : 'commodityController.do?setSession&name='+name+'&value='+value,
+		url : basePath+'/commodityController.do?setSession&name='+name+'&value='+value,
 		type : 'POST',
 		async: false,
 		dataType : 'json',

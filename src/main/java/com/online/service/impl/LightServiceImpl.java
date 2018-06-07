@@ -1,154 +1,64 @@
 package com.online.service.impl;
 
+import com.online.dao.LightDao;
 import com.online.entity.LightEntity;
-import com.online.service.LightServiceI;
-import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
-import org.jeecgframework.core.util.ApplicationContextUtil;
-import org.jeecgframework.core.util.MyClassLoader;
-import org.jeecgframework.core.util.StringUtil;
-import org.jeecgframework.web.cgform.enhance.CgformEnhanceJavaInter;
+import com.online.service.LightService;
+import com.online.utils.Page;
+import org.jeecgframework.core.common.service.CommonService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-@Service("lightService")
-@Transactional
-public class LightServiceImpl extends CommonServiceImpl implements LightServiceI {
+/**
+ * @description 灯具管理Service实现类
+ * @author      aaron
+ * @date        2018/06/06
+ */
+@Service
+public class LightServiceImpl implements LightService {
+    @Autowired
+    private LightDao lightDao;
+    @Autowired
+    private CommonService commonService;
+    /**
+     * 分页查询
+     * @param currentPage 当前页号：现在显示的页数
+     * @param pageSize 每页显示的记录条数
+     * @return 封闭了分页信息(包括记录集list)的Bean
+     * */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Page queryForPage(int currentPage,int pageSize, Map<String,String> map) {
+        Page page = new Page();
+        //总记录数
+        int allRow = lightDao.getAllRowCount(map);
+        //当前页开始记录
+        int offset = page.countOffset(currentPage,pageSize);
+        //分页查询结果集
+        List<LightEntity> list = lightDao.queryForPage(offset, pageSize, map);
+        page.setPageNo(currentPage);
+        page.setPageSize(pageSize);
+        page.setTotalRecords(allRow);
+        page.setList(list);
 
-	
- 	public void delete(LightEntity entity) throws Exception{
- 		super.delete(entity);
- 		//执行删除操作增强业务
-		this.doDelBus(entity);
- 	}
- 	
- 	public Serializable save(LightEntity entity) throws Exception{
- 		Serializable t = super.save(entity);
- 		//执行新增操作增强业务
- 		this.doAddBus(entity);
- 		return t;
- 	}
- 	
- 	public void saveOrUpdate(LightEntity entity) throws Exception{
- 		super.saveOrUpdate(entity);
- 		//执行更新操作增强业务
- 		this.doUpdateBus(entity);
- 	}
- 	
- 	/**
-	 * 新增操作增强业务
-	 * @param t
-	 * @return
-	 */
-	private void doAddBus(LightEntity t) throws Exception{
-		//-----------------sql增强 start----------------------------
-	 	//-----------------sql增强 end------------------------------
-	 	
-	 	//-----------------java增强 start---------------------------
-	 	//-----------------java增强 end-----------------------------
- 	}
- 	/**
-	 * 更新操作增强业务
-	 * @param t
-	 * @return
-	 */
-	private void doUpdateBus(LightEntity t) throws Exception{
-		//-----------------sql增强 start----------------------------
-	 	//-----------------sql增强 end------------------------------
-	 	
-	 	//-----------------java增强 start---------------------------
-	 	//-----------------java增强 end-----------------------------
- 	}
- 	/**
-	 * 删除操作增强业务
-	 * @param id
-	 * @return
-	 */
-	private void doDelBus(LightEntity t) throws Exception{
-	    //-----------------sql增强 start----------------------------
-	 	//-----------------sql增强 end------------------------------
-	 	
-	 	//-----------------java增强 start---------------------------
-	 	//-----------------java增强 end-----------------------------
- 	}
- 	
- 	private Map<String,Object> populationMap(LightEntity t){
-		Map<String,Object> map = new HashMap<String,Object>();
-		map.put("id", t.getId());
-		map.put("create_name", t.getCreateName());
-		map.put("create_by", t.getCreateBy());
-		map.put("create_date", t.getCreateDate());
-		map.put("update_name", t.getUpdateName());
-		map.put("update_by", t.getUpdateBy());
-		map.put("update_date", t.getUpdateDate());
-		map.put("sys_org_code", t.getSysOrgCode());
-		map.put("sys_company_code", t.getSysCompanyCode());
-		map.put("serial", t.getSerial());
-		map.put("model", t.getModel());
-		map.put("product_model", t.getProductModel());
-		map.put("product_name", t.getProductName());
-		map.put("specification", t.getSpecification());
-		map.put("price", t.getPrice());
-		map.put("company_name", t.getCompanyName());
-		map.put("brand", t.getBrand());
-		map.put("comment", t.getComment());
-		return map;
-	}
- 	
- 	/**
-	 * 替换sql中的变量
-	 * @param sql
-	 * @param t
-	 * @return
-	 */
- 	public String replaceVal(String sql,LightEntity t){
- 		sql  = sql.replace("#{id}",String.valueOf(t.getId()));
- 		sql  = sql.replace("#{create_name}",String.valueOf(t.getCreateName()));
- 		sql  = sql.replace("#{create_by}",String.valueOf(t.getCreateBy()));
- 		sql  = sql.replace("#{create_date}",String.valueOf(t.getCreateDate()));
- 		sql  = sql.replace("#{update_name}",String.valueOf(t.getUpdateName()));
- 		sql  = sql.replace("#{update_by}",String.valueOf(t.getUpdateBy()));
- 		sql  = sql.replace("#{update_date}",String.valueOf(t.getUpdateDate()));
- 		sql  = sql.replace("#{sys_org_code}",String.valueOf(t.getSysOrgCode()));
- 		sql  = sql.replace("#{sys_company_code}",String.valueOf(t.getSysCompanyCode()));
- 		sql  = sql.replace("#{serial}",String.valueOf(t.getSerial()));
- 		sql  = sql.replace("#{model}",String.valueOf(t.getModel()));
- 		sql  = sql.replace("#{product_model}",String.valueOf(t.getProductModel()));
- 		sql  = sql.replace("#{product_name}",String.valueOf(t.getProductName()));
- 		sql  = sql.replace("#{specification}",String.valueOf(t.getSpecification()));
- 		sql  = sql.replace("#{price}",String.valueOf(t.getPrice()));
- 		sql  = sql.replace("#{company_name}",String.valueOf(t.getCompanyName()));
- 		sql  = sql.replace("#{brand}",String.valueOf(t.getBrand()));
- 		sql  = sql.replace("#{comment}",String.valueOf(t.getComment()));
- 		sql  = sql.replace("#{UUID}",UUID.randomUUID().toString());
- 		return sql;
- 	}
- 	
- 	/**
-	 * 执行JAVA增强
-	 */
- 	private void executeJavaExtend(String cgJavaType,String cgJavaValue,Map<String,Object> data) throws Exception {
- 		if(StringUtil.isNotEmpty(cgJavaValue)){
-			Object obj = null;
-			try {
-				if("class".equals(cgJavaType)){
-					//因新增时已经校验了实例化是否可以成功，所以这块就不需要再做一次判断
-					obj = MyClassLoader.getClassByScn(cgJavaValue).newInstance();
-				}else if("spring".equals(cgJavaType)){
-					obj = ApplicationContextUtil.getContext().getBean(cgJavaValue);
-				}
-				if(obj instanceof CgformEnhanceJavaInter){
-					CgformEnhanceJavaInter javaInter = (CgformEnhanceJavaInter) obj;
-					javaInter.execute("light",data);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new Exception("执行JAVA增强出现异常！");
-			} 
-		}
- 	}
+        return page;
+    }
+
+    /**
+     * 根据灯具id获取商品信息
+     * @param id
+     * @return
+     */
+    public LightEntity getDataById(String id) {
+        LightEntity lights = (LightEntity) lightDao.get(LightEntity.class, id);
+        return lights;
+    }
+
+    public Serializable save(LightEntity entity) throws Exception{
+        Serializable t = commonService.save(entity);
+        return t;
+    }
 }
