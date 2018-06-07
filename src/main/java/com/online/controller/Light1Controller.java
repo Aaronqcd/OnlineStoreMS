@@ -56,9 +56,9 @@ import java.util.*;
  * @version V1.0   
  *
  */
-@Api(value="Light",description="灯表",tags="lightController")
+@Api(value="Light",description="灯表",tags="light1Controller")
 @Controller
-@RequestMapping("/lightController")
+@RequestMapping("/light1Controller")
 public class Light1Controller extends BaseController {
 	/**
 	 * Logger for this class
@@ -246,7 +246,7 @@ public class Light1Controller extends BaseController {
 	 */
 	@RequestMapping(params = "upload")
 	public ModelAndView upload(HttpServletRequest req) {
-		req.setAttribute("controller_name","lightController");
+		req.setAttribute("controller_name","light1Controller");
 		return new ModelAndView("common/upload/pub_excel_upload");
 	}
 	
