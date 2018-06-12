@@ -141,7 +141,7 @@
         uploader = WebUploader.create({
             pick: {
                 id: '#filePicker',
-                label: '上传课件'
+                label: '上传文件'
             },
             /*formData: {
                 uid: 123

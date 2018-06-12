@@ -30,7 +30,8 @@
                     value="${map['title']}">
                 </div>
                 <button type="button" class="btn btn-primary" onclick="query()">查询</button>
-                <button type="button" class="btn btn-default" onclick="empty()">重置</button>
+                <button type="button" class="btn btn-primary" onclick="empty()">重置</button>
+                <button type="button" class="btn btn-primary" onclick="edit()">编辑</button>
             </form>
         </div>
         <!-- 开始 -->
@@ -40,8 +41,16 @@
             <c:forEach var="good" items="${goods}">
             <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6"><!-- 大屏幕放4张略缩图，pc端放3张，平板和手机放2张-->
                 <div class="thumbnail">
-                    <img src="${good.picture1}" title="商品图片"
-                         class="img-responsive" style="width: 220px;height:220px">
+                    <c:choose>
+                        <c:when test="${fn:contains(good.picture1,'https://')}">
+                            <img src="${good.picture1}" title="商品图片"
+                                 class="img-responsive" style="width: 220px;height:220px">
+                        </c:when>
+                        <c:otherwise>
+                            <img src="${webRoot}/${good.picture1}" title="商品图片"
+                                 class="img-responsive" style="width: 220px;height:220px">
+                        </c:otherwise>
+                    </c:choose>
                     <div class="caption">
                         <h4>¥${good.price}</h4>
                         <p style="color:red;">
@@ -56,7 +65,7 @@
                             </c:choose>
                         </p>
                         <div style="text-align:right">
-                            <input type="checkbox" value="${good.id}"/>
+                            <input type="checkbox" name="goodsId" value="${good.id}"/>
                         </div>
                     </div>
                 </div>
@@ -114,6 +123,7 @@
     });*/
     var screenHeight = window.screen.height;
     var detailUrl = "${webRoot}/goodsController/detail.do";
+    var editUrl = "${webRoot}/goodsController/goEdit.do";
     $('#skipPage').bind('keydown',function(event){
         if(event.keyCode == "13") {
             skipPage();
@@ -210,6 +220,50 @@
                 content: detailUrl+"?id="+id,
                 end: function(){
                     //reload();
+                }
+            });
+        }
+    }
+    function edit() {
+        var goodsIds=new Array();
+        $("input[name='goodsId']:checkbox").each(function(){
+            if($(this).prop("checked")){
+                goodsIds.push($(this).val());
+            }
+        });
+        if(goodsIds.length==0){
+            alert('请选择数据!');
+            return false;
+        }
+        else if(goodsIds.length>1){
+            alert('只能选择1条数据!');
+            return false;
+        }
+        var goodsId = goodsIds.join(',');
+        if(screenHeight<=900) {
+            layer.open({
+                type: 2,
+                title: '修改商品信息',
+                maxmin: true,
+                offset: '50px',
+                area: ['900px', '400px'],
+                scrollbar: false,
+                content: editUrl+"?id="+goodsId+"&pageNo=${page.pageNo}",
+                end: function(){
+                    location.href="${webRoot}/goodsController/showAll.do?pageNo=${page.pageNo}";
+                }
+            });
+        }
+        else {
+            layer.open({
+                type: 2,
+                title: '修改商品信息',
+                maxmin: true,
+                area: ['900px', '700px'],
+                scrollbar: false,
+                content: editUrl+"?id="+goodsId+"&pageNo=${page.pageNo}",
+                end: function(){
+                    location.href="${webRoot}/goodsController/showAll.do?pageNo=${page.pageNo}";
                 }
             });
         }
