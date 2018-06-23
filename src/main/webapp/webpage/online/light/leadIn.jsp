@@ -32,7 +32,7 @@
                                         <span class="percentage"></span>
                                     </div><div class="info"></div>
                                     <div class="btns">
-                                        <div id="filePicker2"></div><div class="uploadBtn">上传课件</div>
+                                        <div id="filePicker2"></div><div class="uploadBtn">上传文件</div>
                                     </div>
                                 </div>
                             </div>

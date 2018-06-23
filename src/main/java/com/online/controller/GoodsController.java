@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -173,6 +174,9 @@ public class GoodsController extends BaseController {
                 else if("picture3".equals(field)) {
                     goodsEntity.setPicture3(fieldPath);
                 }
+                else if("picture4".equals(field)) {
+                    goodsEntity.setPicture4(fieldPath);
+                }
                 systemService.saveOrUpdate(goodsEntity);
                 j.setSuccess(true);
                 j.setMsg("图片修改成功");
@@ -181,6 +185,26 @@ public class GoodsController extends BaseController {
                 j.setSuccess(false);
             }
         }
+        return j;
+    }
+
+    /**
+     * 删除商品
+     * @param ids
+     * @param field
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "delete", method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxJson delete(@RequestParam(value="ids[]") String[] ids, String field, HttpServletRequest request, HttpServletResponse response) {
+        AjaxJson j = new AjaxJson();
+        for(int i=0; i<ids.length; i++) {
+            systemService.deleteEntityById(GoodsEntity.class, Integer.parseInt(ids[i]));
+        }
+        j.setSuccess(true);
+        j.setMsg("图片修改成功");
         return j;
     }
 }

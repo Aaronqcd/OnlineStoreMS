@@ -53,6 +53,18 @@
                                     </c:otherwise>
                                 </c:choose>
                             </div>
+                            <div class="form-group">
+                                <c:choose>
+                                    <c:when test="${fn:contains(goods.picture4,'https://')}">
+                                        <img src="${goods.picture4}" class="picture4" title="商品图片" class="img-responsive"
+                                             style="width: 180px;height:180px;cursor:pointer" onclick="fileSelect('picture4');">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img src="${webRoot}/${goods.picture4}" class="picture4" title="商品图片" class="img-responsive"
+                                             style="width: 180px;height:180px;cursor:pointer" onclick="fileSelect('picture4');">
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                         </div>
                         <div class="col-sm-9">
                             <div class="form-group">

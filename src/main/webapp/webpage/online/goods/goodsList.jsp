@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="${webRoot}/plug-in/bootstrap-3.3.7/css/bootstrap.css" />
     <script type="text/javascript" src="${webRoot}/plug-in/jquery/jquery-1.9.1.js"></script>
     <script type="text/javascript" src="${webRoot}/plug-in/bootstrap-3.3.7/js/bootstrap.js"></script>
-    <script type="text/javascript" src="${webRoot}/plug-in/layer/layer.js"></script>
+    <script type="text/javascript" src="${webRoot}/plug-in/layer-v3.1.1/layer.js"></script>
     <%--<style>
         img{
             -webkit-transition: ease .2s;
@@ -32,6 +32,7 @@
                 <button type="button" class="btn btn-primary" onclick="query()">查询</button>
                 <button type="button" class="btn btn-primary" onclick="empty()">重置</button>
                 <button type="button" class="btn btn-primary" onclick="edit()">编辑</button>
+                <button type="button" class="btn btn-primary" onclick="del()">删除</button>
             </form>
         </div>
         <!-- 开始 -->
@@ -121,6 +122,7 @@
             $(this).removeClass('hover')
         });
     });*/
+    layer.msg("确定");
     var screenHeight = window.screen.height;
     var detailUrl = "${webRoot}/goodsController/detail.do";
     var editUrl = "${webRoot}/goodsController/goEdit.do";
@@ -267,6 +269,38 @@
                 }
             });
         }
+    }
+
+    function del() {
+        var goodsIds=new Array();
+        $("input[name='goodsId']:checkbox").each(function(){
+            if($(this).prop("checked")){
+                goodsIds.push($(this).val());
+            }
+        });
+        if(goodsIds.length==0){
+            alert('请选择数据!');
+            return false;
+        }
+        parent.layer.confirm('确定批量删除这些商品吗？', {
+            btn: ['确定','取消'] //按钮
+        }, function(){
+            $.ajax({
+                url:"${webRoot}/goodsController/delete.do",
+                type:"post",
+                dataType:"json",
+                data:{
+                    ids: goodsIds
+                },
+                success:function(data){
+                    console.log(data);
+                    parent.layer.closeAll();
+                    location.href="${webRoot}/goodsController/showAll.do?pageNo=${page.pageNo}";
+                }
+            });
+        }, function(){
+            parent.layer.closeAll();
+        });
     }
 </script>
 </html>

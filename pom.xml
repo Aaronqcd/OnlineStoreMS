@@ -31,7 +31,8 @@
 
 		<!-- 工具包 -->
         <!-- json start -->
-		<jackson.version>1.8.4</jackson.version>
+		<jackson.version>1.9.13</jackson.version>
+		<!--<jackson.version>1.8.4</jackson.version>-->
         <jacksonframework.version>1.84</jacksonframework.version>
 		<json-lib.version>2.1</json-lib.version>
 		<fastjson-lib.version>1.2.6</fastjson-lib.version>

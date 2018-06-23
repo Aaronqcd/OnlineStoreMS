@@ -37,6 +37,7 @@ public class GoodsEntity implements java.io.Serializable {
 	private String picture2;
 	/**商品图片3*/
 	private String picture3;
+	private String picture4;
 
 	/**
 	 *方法: 取得java.lang.Integer
@@ -248,5 +249,14 @@ public class GoodsEntity implements java.io.Serializable {
 	 */
 	public void setPicture3(String picture3){
 		this.picture3 = picture3;
+	}
+
+	@Column(name ="PICTURE4",nullable=true,length=255)
+	public String getPicture4() {
+		return picture4;
+	}
+
+	public void setPicture4(String picture4) {
+		this.picture4 = picture4;
 	}
 }

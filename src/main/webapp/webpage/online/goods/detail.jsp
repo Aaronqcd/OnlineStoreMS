@@ -39,7 +39,19 @@
                                     </c:otherwise>
                                 </c:choose>
                             </div>
-                            <c:set value="${fn:split(goods.picture1,'/')}" var="picture1" />
+                            <div class="form-group">
+                                <c:choose>
+                                    <c:when test="${fn:contains(goods.picture2,'https://')}">
+                                        <img src="${goods.picture2}" title="商品图片"
+                                             class="img-responsive" style="width: 220px;height:220px">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img src="${webRoot}/${goods.picture2}" title="商品图片"
+                                             class="img-responsive" style="width: 220px;height:220px">
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                            <%--<c:set value="${fn:split(goods.picture1,'/')}" var="picture1" />
                             <c:set value="${fn:split(goods.picture2,'/')}" var="picture2" />
                             <c:if test="${picture1[fn:length(picture1)-1]!=picture2[fn:length(picture2)-1]}">
                             <div class="form-group">
@@ -54,7 +66,7 @@
                                     </c:otherwise>
                                 </c:choose>
                             </div>
-                            </c:if>
+                            </c:if>--%>
                             <div class="form-group">
                                 <c:choose>
                                     <c:when test="${fn:contains(goods.picture3,'https://')}">
@@ -67,10 +79,22 @@
                                     </c:otherwise>
                                 </c:choose>
                             </div>
+                            <div class="form-group">
+                                <c:choose>
+                                    <c:when test="${fn:contains(goods.picture4,'https://')}">
+                                        <img src="${goods.picture4}" title="商品图片"
+                                             class="img-responsive" style="width: 220px;height:220px">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img src="${webRoot}/${goods.picture4}" title="商品图片"
+                                             class="img-responsive" style="width: 220px;height:220px">
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                         </div>
                         <div class="col-sm-8">
                             <div class="form-group">
-                                <label class="col-sm-3 control-label">商品分类1</label>
+                                <label class="col-sm-3 control-label">商品分类</label>
                                 <div class="col-sm-9">
                                     <p class="form-control-static">${goods.category}</p>
                                 </div>
