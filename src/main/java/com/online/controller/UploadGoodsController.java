@@ -51,11 +51,15 @@ public class UploadGoodsController extends BaseController {
         try {
             String pageNo = request.getParameter("pageNo");
             String productName = request.getParameter("productName");
+            String category = request.getParameter("category");
+            String categoryName = request.getParameter("categoryName");
             if (pageNo == null) {
                 pageNo = "1";
             }
             Map<String,String> map = new HashMap<>();
             map.put("productName", productName);
+            map.put("category", category);
+            map.put("categoryName", categoryName);
             Page page = uploadGoodsService.queryForPage(Integer.valueOf(pageNo), 10, map);
             request.setAttribute("page", page);
             request.setAttribute("map", map);

@@ -30,6 +30,10 @@ public class UploadGoodsDao extends CommonDao {
             if(map.get("productName")!=null && !"".equals(map.get("productName"))) {
                 criteria.add(Expression.like("productName", "%"+map.get("productName")+"%"));
             }
+            if(map.get("category")!=null && !"".equals(map.get("category"))) {
+                String[] category = map.get("category").split(",");
+                criteria.add(Expression.in("category", category));
+            }
             criteria.setFirstResult(offset);
             criteria.setMaxResults(length);
             entitylist = criteria.list();
@@ -49,6 +53,10 @@ public class UploadGoodsDao extends CommonDao {
         Criteria criteria = getSession().createCriteria(UploadGoodsEntity.class);
         if(map.get("productName")!=null && !"".equals(map.get("productName"))) {
             criteria.add(Expression.like("productName", "%"+map.get("productName")+"%"));
+        }
+        if(map.get("category")!=null && !"".equals(map.get("category"))) {
+            String[] category = map.get("category").split(",");
+            criteria.add(Expression.in("category", category));
         }
         int count = criteria.list().size();
         return count;

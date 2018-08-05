@@ -1,8 +1,10 @@
 package com.online.controller;
 
+import com.online.entity.CategoryEntity;
 import com.online.entity.GoodsEntity;
 import com.online.service.GoodsService;
 import com.online.utils.Page;
+import com.online.utils.ZtreeUtil;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.poi.util.PoiPublicUtil;
@@ -20,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,11 +56,15 @@ public class GoodsController extends BaseController {
         try {
             String pageNo = request.getParameter("pageNo");
             String title = request.getParameter("title");
+            String category = request.getParameter("category");
+            String categoryName = request.getParameter("categoryName");
             if (pageNo == null) {
                 pageNo = "1";
             }
             Map<String,String> map = new HashMap<>();
             map.put("title", title);
+            map.put("category", category);
+            map.put("categoryName", categoryName);
             Page page = goodsService.queryForPage(Integer.valueOf(pageNo), 10, map);
             request.setAttribute("page", page);
             request.setAttribute("map", map);
@@ -206,5 +213,34 @@ public class GoodsController extends BaseController {
         j.setSuccess(true);
         j.setMsg("图片修改成功");
         return j;
+    }
+
+    /**
+     * 获取所有的商品分类,封装成ztree数据格式
+     * @param request
+     * @return
+     */
+    @RequestMapping(value="/category/all", method = RequestMethod.POST)
+    @ResponseBody
+    public List<ZtreeUtil> getCategoryAll(HttpServletRequest request) {
+        List<CategoryEntity> list = systemService.getList(CategoryEntity.class);
+        List<ZtreeUtil> ztreeUtils = new ArrayList<>();
+        for (CategoryEntity category:list) {
+            ZtreeUtil ztreeUtil = new ZtreeUtil();
+            ztreeUtil.setId(category.getId());
+            if(category.getParentId()!=null) {
+                ztreeUtil.setPId(category.getParentId());
+            }
+            else {
+                ztreeUtil.setPId("1");
+            }
+            ztreeUtil.setName(category.getName());
+            ztreeUtil.setOpen(true);
+            ztreeUtil.setChecked(false);
+            ztreeUtil.setCode(category.getCode());
+            //ztreeUtil.setSign("1");
+            ztreeUtils.add(ztreeUtil);
+        }
+        return ztreeUtils;
     }
 }

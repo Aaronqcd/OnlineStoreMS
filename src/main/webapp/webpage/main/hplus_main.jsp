@@ -14,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="renderer" content="webkit">
 
-    <title>淘宝商品采集系统</title>
+    <title>商品数据库平台</title>
 
     <link rel="shortcut icon" href="images/favicon.ico">
     <link href="plug-in-ui/hplus/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
@@ -83,7 +83,7 @@
                 <div class="navbar-header" style="height: 60px;"><a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
                     <form role="search" class="navbar-form-custom" method="post" action="search_results.html">
                         <div class="form-group">
-                            <h3 class="form-control" style="line-height:40px;">欢迎使用淘宝商品采集系统</h3>
+                            <h3 class="form-control" style="line-height:40px;">欢迎使用商品数据库平台</h3>
                             <%--<input type="text" placeholder="欢迎使用Jeecg快速开发平台 …" class="form-control" name="top-search" id="top-search">--%>
                         </div>
                     </form>
@@ -210,7 +210,7 @@
 		</style> 
         <div class="row J_mainContent" id="content-main" style="margin-left:-13px;">
             <div class="proccess" id="panelloadingDiv"><b>&nbsp;</b></div> 
-            <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="logController.do?log" frameborder="0" data-id="logController.do?log" seamless></iframe>
+            <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="cgAutoListController.do?list&id=category" frameborder="0" data-id="cgAutoListController.do?list&id=category" seamless></iframe>
         </div>
         <div class="footer" style="border-top:none;">
             <%--<div class="pull-right">&copy; <t:mutiLang langKey="system.version.number"/> <a href="http://www.jeecg.org/" target="_blank">jeecg</a>

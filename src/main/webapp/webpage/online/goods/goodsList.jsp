@@ -4,10 +4,14 @@
 <head>
     <title>商品列表</title>
     <link rel="stylesheet" type="text/css" href="${webRoot}/plug-in/bootstrap-3.3.7/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="${webRoot}/plug-in/ztree-v3.5.29/zTreeStyle/zTreeStyle.css" />
+    <link rel="stylesheet" type="text/css" href="${webRoot}/plug-in/ztree-v3.5.29/zTreeStyle/custom.css" />
     <script type="text/javascript" src="${webRoot}/plug-in/jquery/jquery-1.9.1.js"></script>
     <script type="text/javascript" src="${webRoot}/plug-in/bootstrap-3.3.7/js/bootstrap.js"></script>
     <script type="text/javascript" src="${webRoot}/plug-in/layer-v3.1.1/layer.js"></script>
-    <%--<style>
+    <script type="text/javascript" src="${webRoot}/plug-in/ztree-v3.5.29/js/jquery.ztree.core.min.js"></script>
+    <script type="text/javascript" src="${webRoot}/plug-in/ztree-v3.5.29/js/jquery.ztree.excheck.min.js"></script>
+<%--<style>
         img{
             -webkit-transition: ease .2s;
             transition: ease .2s;
@@ -24,6 +28,12 @@
     <div class="container">  <!-- 开加一个container的目的是为了让整体布局居中 -->
         <div class="row" style="border: 1px solid #ddd;border-radius: 4px;padding-top: 10px;margin-top: 10px">
             <form class="form-inline" style="padding-left: 10px">
+                <div class="form-group">
+                    <label for="category">商品类别：</label>
+                    <input type="hidden" name="category" value="${map['category']}" />
+                    <input type="text" id="category" class="form-control" readonly placeholder="-----请选择商品类别-----" value="${map['categoryName']}" />
+                    <button type="button" class="btn btn-primary btn-sm" onclick="getCategory()">选择商品类别</button>
+                </div>
                 <div class="form-group">
                     <label for="title">商品标题</label>
                     <input type="text" class="form-control" id="title" name="title" placeholder="请输入商品标题"
@@ -112,6 +122,17 @@
         <!-- 结束 -->
 
     </div>
+    <div id="categoryDiv" style="display:none">
+        <div>
+            <ul id="treeCategory" class="ztree"></ul>
+        </div>
+        <div class="form-group p-d-30">
+            <div class="col-sm-4 col-sm-offset-8">
+                <button class="btn btn-primary" type="button" onclick="saveCategory()">确定</button>
+                <button class="btn btn-primary" type="button" onclick="replacement()">重置</button>
+            </div>
+        </div>
+    </div>
 
 </body>
 <script>
@@ -122,10 +143,27 @@
             $(this).removeClass('hover')
         });
     });*/
-    layer.msg("确定");
     var screenHeight = window.screen.height;
     var detailUrl = "${webRoot}/goodsController/detail.do";
     var editUrl = "${webRoot}/goodsController/goEdit.do";
+    var getCategoryUrl = "${webRoot}/goodsController/category/all.do";
+    var setting = {
+        check: {
+            enable: true,
+            chkStyle: "checkbox",
+            chkboxType: { "Y": "ps", "N": "ps" }
+        },
+        data: {
+            simpleData: {
+                enable: true
+            }
+        }
+    };
+    var zNodes = new Array();
+    $(function() {
+        getAllCategory();
+        $.fn.zTree.init($("#treeCategory"), setting, zNodes);
+    });
     $('#skipPage').bind('keydown',function(event){
         if(event.keyCode == "13") {
             skipPage();
@@ -154,46 +192,71 @@
     }
     function query() {
         var title = $("#title").val();
+        var category = $("[name='category']").val();
+        var categoryName = $("#category").val();
         /*if(title=='') {
             alert("请输入商品标题");
             return false;
         }*/
-        var pageNo = ${page.pageNo};
-        location.href="${webRoot}/goodsController/showAll.do?pageNo="+pageNo+"&title="+title;
+        //var pageNo = ${page.pageNo};
+        location.href="${webRoot}/goodsController/showAll.do?pageNo=1&title="+title+
+                "&category="+category+"&categoryName="+categoryName;
     }
     function empty() {
         $("#title").val('');
+        $("#category").val('');
+        $("[name='category']").val('');
         location.href="${webRoot}/goodsController/showAll.do";
     }
     function topPage() {
         var title = $("#title").val();
+        var category = $("[name='category']").val();
+        var categoryName = $("#category").val();
         var url = "${webRoot}/goodsController/showAll.do?pageNo=${page.topPageNo }";
         if(title!='') {
             url += "&title="+title;
+        }
+        if(category!='') {
+            url += "&category="+category+"&categoryName="+categoryName;
         }
         location.href = url;
     }
     function previousPage() {
         var title = $("#title").val();
+        var category = $("[name='category']").val();
+        var categoryName = $("#category").val();
         var url = "${webRoot}/goodsController/showAll.do?pageNo=${page.previousPageNo }";
         if(title!='') {
             url += "&title="+title;
+        }
+        if(category!='') {
+            url += "&category="+category+"&categoryName="+categoryName;
         }
         location.href = url;
     }
     function nextPage() {
         var title = $("#title").val();
+        var category = $("[name='category']").val();
+        var categoryName = $("#category").val();
         var url = "${webRoot}/goodsController/showAll.do?pageNo=${page.nextPageNo }";
         if(title!='') {
             url += "&title="+title;
+        }
+        if(category!='') {
+            url += "&category="+category+"&categoryName="+categoryName;
         }
         location.href = url;
     }
     function bottomPage() {
         var title = $("#title").val();
+        var category = $("[name='category']").val();
+        var categoryName = $("#category").val();
         var url = "${webRoot}/goodsController/showAll.do?pageNo=${page.bottomPageNo }";
         if(title!='') {
             url += "&title="+title;
+        }
+        if(category!='') {
+            url += "&category="+category+"&categoryName="+categoryName;
         }
         location.href = url;
     }
@@ -301,6 +364,87 @@
         }, function(){
             parent.layer.closeAll();
         });
+    }
+    //弹出选择商品类别框
+    function getCategory() {
+        var code = $("[name='category']").val();
+        var zTreeObj = $.fn.zTree.getZTreeObj("treeCategory");
+        var node = zTreeObj.getNodeByParam("code",code);
+        if(node!=null) {
+            zTreeObj.checkNode(node,true);
+        }
+        if(screenHeight<=900) {
+            layer.open({
+                type: 1,
+                title: '选择商品类别',
+                maxmin: true,
+                offset: '50px',
+                area: ['600px', '300px'],
+                content: $('#categoryDiv'),
+                end: function(){
+                }
+            });
+        }
+        else {
+            layer.open({
+                type: 1,
+                title: '选择商品类别',
+                maxmin: true,
+                area: ['600px', '500px'],
+                content: $('#categoryDiv'),
+                end: function(){
+                }
+            });
+        }
+    }
+
+    //获取所有商品类别
+    function getAllCategory() {
+        $.ajax({
+            type: "post",
+            async: false,
+            dataType: "json",
+            url: getCategoryUrl,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var obj = new Object();
+                    obj.name = data[i].name;
+                    obj.id = data[i].id;
+                    obj.pId = data[i].pid;
+                    obj.checked = data[i].checked;
+                    obj.open = data[i].open;
+                    obj.code = data[i].code;
+                    //obj.sign = data[i].sign;
+                    zNodes.push(obj);
+                }
+            }
+        });
+    }
+
+    function saveCategory() {
+        var zTreeObj = $.fn.zTree.getZTreeObj("treeCategory");
+        var checkedNodes = zTreeObj.getCheckedNodes();
+        var codes = "";
+        var names = "";
+        console.log(checkedNodes);
+        for(var i=0; i<checkedNodes.length; i++) {
+            if(checkedNodes[i].check_Child_State!=1) {
+                codes += checkedNodes[i].code+",";
+                names += checkedNodes[i].name+",";
+            }
+        }
+        codes = codes.substr(0, codes.length - 1);
+        names = names.substr(0, names.length - 1);
+        $("#category").val(names);
+        $("[name='category']").val(codes);
+        layer.close(layer.index);
+    }
+
+    function replacement() {
+        var zTreeObj = $.fn.zTree.getZTreeObj("treeCategory");
+        zTreeObj.checkAllNodes(false);
+        $("#category").val('');
+        $("[name='category']").val('');
     }
 </script>
 </html>

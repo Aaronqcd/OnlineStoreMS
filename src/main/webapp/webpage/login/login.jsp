@@ -11,7 +11,7 @@
 <head>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta charset="utf-8" />
-  <title>淘宝商品采集系统</title>
+  <title>商品数据库平台</title>
    <link rel="shortcut icon" href="images/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <!-- bootstrap & fontawesome -->
@@ -50,7 +50,7 @@
         <div class="login-container">
           <div class="center">
             <h1 id="id-text2" class="grey">
-                淘宝商品采集系统
+                商品数据库平台
             </h1>
           </div>
           <div class="space-6"></div>

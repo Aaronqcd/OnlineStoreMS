@@ -30,6 +30,10 @@ public class GoodsDao extends CommonDao {
             if(map.get("title")!=null && !"".equals(map.get("title"))) {
                 criteria.add(Expression.like("title", "%"+map.get("title")+"%"));
             }
+            if(map.get("category")!=null && !"".equals(map.get("category"))) {
+                String[] category = map.get("category").split(",");
+                criteria.add(Expression.in("category", category));
+            }
             criteria.setFirstResult(offset);
             criteria.setMaxResults(length);
             entitylist = criteria.list();
@@ -49,6 +53,10 @@ public class GoodsDao extends CommonDao {
         Criteria criteria = getSession().createCriteria(GoodsEntity.class);
         if(map.get("title")!=null && !"".equals(map.get("title"))) {
             criteria.add(Expression.like("title", "%"+map.get("title")+"%"));
+        }
+        if(map.get("category")!=null && !"".equals(map.get("category"))) {
+            String[] category = map.get("category").split(",");
+            criteria.add(Expression.in("category", category));
         }
         int count = criteria.list().size();
         return count;
