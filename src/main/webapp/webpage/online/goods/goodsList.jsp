@@ -43,6 +43,7 @@
                 <button type="button" class="btn btn-primary" onclick="empty()">重置</button>
                 <button type="button" class="btn btn-primary" onclick="edit()">编辑</button>
                 <button type="button" class="btn btn-primary" onclick="del()">删除</button>
+                <button type="button" class="btn btn-primary" onclick="goImportStorePage()">导入至店铺</button>
             </form>
         </div>
         <!-- 开始 -->
@@ -146,7 +147,10 @@
     var screenHeight = window.screen.height;
     var detailUrl = "${webRoot}/goodsController/detail.do";
     var editUrl = "${webRoot}/goodsController/goEdit.do";
+    var goImportStoreUrl = "${webRoot}/goodsController/goImportStore.do";
     var getCategoryUrl = "${webRoot}/goodsController/category/all.do";
+    var importStoreUrl = "${webRoot}/goodsController/importStore.do";
+    var validateImportStoreUrl = "${webRoot}/goodsController/validateImportStore.do";
     var setting = {
         check: {
             enable: true,
@@ -445,6 +449,102 @@
         zTreeObj.checkAllNodes(false);
         $("#category").val('');
         $("[name='category']").val('');
+    }
+
+    function importStore() {
+        var goodsIds=new Array();
+        $("input[name='goodsId']:checkbox").each(function(){
+            if($(this).prop("checked")){
+                goodsIds.push($(this).val());
+            }
+        });
+        if(goodsIds.length==0){
+            alert('请选择数据!');
+            return false;
+        }
+        else if(goodsIds.length>1){
+            alert('只能选择1条数据!');
+            return false;
+        }
+        var goodsId = goodsIds.join(',');
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            url: importStoreUrl,
+            data:{
+                id: goodsId
+            },
+            success: function (data) {
+
+            }
+        });
+    }
+    /**
+     * 进入导入至店铺的页面
+     * @returns {boolean}
+     */
+    function goImportStorePage() {
+        var flag = true;
+        var goodsIds=new Array();
+        $("input[name='goodsId']:checkbox").each(function(){
+            if($(this).prop("checked")){
+                goodsIds.push($(this).val());
+            }
+        });
+        if(goodsIds.length==0){
+            alert('请选择数据!');
+            return false;
+        }
+        else if(goodsIds.length>1){
+            alert('只能选择1条数据!');
+            return false;
+        }
+        var goodsId = goodsIds.join(',');
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            url: validateImportStoreUrl,
+            async: false,
+            data:{
+                id: goodsId
+            },
+            success: function (data) {
+                if(!data.success) {
+                    alert(data.msg);
+                    flag = false;
+                }
+            }
+        });
+        if(!flag) {
+            return flag;
+        }
+        if(screenHeight<=900) {
+            layer.open({
+                type: 2,
+                title: '导入至店铺',
+                maxmin: true,
+                offset: '50px',
+                area: ['900px', '400px'],
+                scrollbar: false,
+                content: goImportStoreUrl+"?id="+goodsId+"&pageNo=${page.pageNo}",
+                end: function(){
+                    //location.href="${webRoot}/goodsController/showAll.do?pageNo=${page.pageNo}";
+                }
+            });
+        }
+        else {
+            layer.open({
+                type: 2,
+                title: '导入至店铺',
+                maxmin: true,
+                area: ['900px', '700px'],
+                scrollbar: false,
+                content: goImportStoreUrl+"?id="+goodsId+"&pageNo=${page.pageNo}",
+                end: function(){
+                    //location.href="${webRoot}/goodsController/showAll.do?pageNo=${page.pageNo}";
+                }
+            });
+        }
     }
 </script>
 </html>

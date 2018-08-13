@@ -151,6 +151,11 @@
                                 </a>
                             </li>
                             <li><a href="javascript:openwindow('<t:mutiLang langKey="common.profile"/>','userController.do?userinfo')"><t:mutiLang langKey="common.profile"/></a></li>
+                            <li>
+                                <a href="javascript:add('更新访问令牌','indexController.do?goUpdateAccessToken','',550,200)">
+                                    设置访问令牌
+                                </a>
+                            </li>
                             <%--<li><a href="javascript:openwindow('<t:mutiLang langKey="common.ssms.getSysInfos"/>','tSSmsController.do?getSysInfos')"><t:mutiLang langKey="common.ssms.getSysInfos"/></a></li>
                             <li><a href="javascript:add('<t:mutiLang langKey="common.change.style"/>','userController.do?changestyle','',550,250)"><t:mutiLang langKey="common.my.style"/></a></li>
                             <li><a href="javascript:toSwagger()">Swagger接口</a></li>

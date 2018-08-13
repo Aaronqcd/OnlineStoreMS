@@ -1,8 +1,12 @@
 package com.online.service;
 
+import com.jd.open.api.sdk.JdException;
 import com.online.entity.GoodsEntity;
+import com.online.utils.JDWareAddBean;
 import com.online.utils.Page;
+import org.jeecgframework.core.common.model.json.AjaxJson;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -25,4 +29,34 @@ public interface GoodsService {
      * @return
      */
     public GoodsEntity getDataById(Integer id);
+
+    /**
+     * 导入至店铺
+     * @param jdWareAddBean
+     */
+    public AjaxJson importStore(JDWareAddBean jdWareAddBean) throws IOException;
+
+    /**
+     * 获取导入至店铺所需的数据
+     * @param id
+     */
+    public AjaxJson getImportStoreData(Integer id) throws JdException;
+
+    /**
+     * 验证是否能导入至店铺
+     * @param id
+     */
+    public AjaxJson validateImportStore(Integer id);
+
+    /**
+     * 验证访问令牌是否过期
+     * @param accessToken
+     */
+    public AjaxJson testExpires(String accessToken) throws JdException;
+
+    /**
+     * 开启自动授权功能
+     * @param refreshToken
+     */
+    public AjaxJson openAuthorize(String refreshToken);
 }

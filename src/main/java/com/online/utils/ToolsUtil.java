@@ -12,6 +12,11 @@ import org.jeecgframework.web.system.service.SystemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpSession;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -128,5 +133,63 @@ public class ToolsUtil {
 
         }
         return client.getFunctions();
+    }
+
+    /**
+     * 根据http url生成byte[]数据
+     * @param url
+     * @return
+     * @throws IOException
+     */
+    public byte[] getFile(String url) throws IOException {
+        InputStream inStream = null;
+        ByteArrayOutputStream outStream = null;
+        URL urlConet = new URL(url);
+        HttpURLConnection con = (HttpURLConnection)urlConet.openConnection();
+        con.setRequestMethod("GET");
+        con.setConnectTimeout(4 * 1000);
+        inStream = con .getInputStream();    //通过输入流获取图片数据
+        outStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[2048];
+        int len = 0;
+        while( (len=inStream.read(buffer)) != -1 ){
+            outStream.write(buffer, 0, len);
+        }
+        inStream.close();
+        byte[] data = outStream.toByteArray();
+        System.out.println(data.toString());
+        return data;
+    }
+
+    /**
+     * 根据http url生成byte[]数据
+     * @param urlString
+     * @return
+     * @throws IOException
+     */
+    public byte[] getFile1(String urlString) throws IOException {
+        String urls = "https://gd4.alicdn.com/imgextra/i2/20784646/TB25uBNnS_I8KJjy0FoXXaFnVXa_!!20784646.jpg_400x400.jpg;" +
+                "https://gd4.alicdn.com/imgextra/i2/20784646/TB25uBNnS_I8KJjy0FoXXaFnVXa_!!20784646.jpg_400x400.jpg;" +
+                "https://gd1.alicdn.com/imgextra/i1/20784646/TB2sgokhctnpuFjSZFKXXalFFXa_!!20784646.jpg_400x400.jpg";
+        String[] urlstr = urls.split(";");
+        InputStream inStream = null;
+        ByteArrayOutputStream outStream = null;
+        for(int i=0; i<urlstr.length; i++) {
+            URL urlConet = new URL(urlstr[i]);
+            HttpURLConnection con = (HttpURLConnection)urlConet.openConnection();
+            con.setRequestMethod("GET");
+            con.setConnectTimeout(4 * 1000);
+            inStream = con .getInputStream();    //通过输入流获取图片数据
+            outStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[2048];
+            int len = 0;
+            while( (len=inStream.read(buffer)) != -1 ){
+                outStream.write(buffer, 0, len);
+            }
+        }
+        inStream.close();
+        byte[] data = outStream.toByteArray();
+        System.out.println(data.toString());
+        return data;
     }
 }

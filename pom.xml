@@ -33,7 +33,7 @@
         <!-- json start -->
 		<jackson.version>1.9.13</jackson.version>
 		<!--<jackson.version>1.8.4</jackson.version>-->
-        <jacksonframework.version>1.84</jacksonframework.version>
+        <!--<jacksonframework.version>1.84</jacksonframework.version>-->
 		<json-lib.version>2.1</json-lib.version>
 		<fastjson-lib.version>1.2.6</fastjson-lib.version>
 		<gson.version>2.2.4</gson.version>
@@ -153,6 +153,12 @@
 			<groupId>org.jeecgframework</groupId>
 			<artifactId>codegenerate</artifactId>
 			<version>${codegenerate.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.jeecgframework</groupId>
+					<artifactId>jackson</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.jeecgframework</groupId>

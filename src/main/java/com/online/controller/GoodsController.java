@@ -1,8 +1,10 @@
 package com.online.controller;
 
+import com.jd.open.api.sdk.JdException;
 import com.online.entity.CategoryEntity;
 import com.online.entity.GoodsEntity;
 import com.online.service.GoodsService;
+import com.online.utils.JDWareAddBean;
 import com.online.utils.Page;
 import com.online.utils.ZtreeUtil;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -103,6 +105,23 @@ public class GoodsController extends BaseController {
         request.setAttribute("goods", goods);
         request.setAttribute("pageNo", pageNo);
         return "online/goods/edit";
+    }
+
+    /**
+     * 跳转至导入至店铺的页面
+     * @param id
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/goImportStore",method = RequestMethod.GET)
+    public String goImportStore(Integer id, String pageNo, HttpServletRequest request, HttpServletResponse response) {
+        GoodsEntity goods = goodsService.getDataById(id);
+        //JDWareAddBean jdWareAddBean = (JDWareAddBean) goodsService.getImportStoreData(id).getObj();
+        request.setAttribute("goods", goods);
+        //request.setAttribute("jdWareAddBean", jdWareAddBean);
+        request.setAttribute("pageNo", pageNo);
+        return "online/goods/importStorePage";
     }
 
     /**
@@ -243,4 +262,58 @@ public class GoodsController extends BaseController {
         }
         return ztreeUtils;
     }
+
+    /**
+     * 导入至店铺
+     * @param jdWareAddBean
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "importStore", method = RequestMethod.GET)
+    @ResponseBody
+    public AjaxJson importStore(JDWareAddBean jdWareAddBean, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        AjaxJson j = new AjaxJson();
+        /*for(int i=0; i<ids.length; i++) {
+            systemService.deleteEntityById(GoodsEntity.class, Integer.parseInt(ids[i]));
+        }*/
+        /*j.setSuccess(true);
+        j.setMsg("成功导入至店铺");*/
+        goodsService.importStore(jdWareAddBean);
+        return j;
+    }
+
+    /**
+     * 验证是否能导入至店铺
+     * @param id
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "validateImportStore", method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxJson validateImportStore(@RequestParam(value="id") Integer id, HttpServletRequest request, HttpServletResponse response) {
+        AjaxJson ajaxJson = goodsService.validateImportStore(id);
+        return ajaxJson;
+    }
+
+    /**
+     * 验证是否能导入至店铺
+     * @param id
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "getImportStoreData", method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxJson getImportStoreData(@RequestParam(value="id") Integer id, HttpServletRequest request, HttpServletResponse response) {
+        AjaxJson ajaxJson = null;
+        try {
+            ajaxJson = goodsService.getImportStoreData(id);
+        } catch (JdException e) {
+            e.printStackTrace();
+        }
+        return ajaxJson;
+    }
+
 }

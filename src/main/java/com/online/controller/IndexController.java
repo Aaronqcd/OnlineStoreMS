@@ -3,12 +3,15 @@ package com.online.controller;
 import com.baomidou.kisso.SSOHelper;
 import com.baomidou.kisso.SSOToken;
 import com.baomidou.kisso.common.util.HttpUtil;
+import com.jd.open.api.sdk.JdException;
+import com.online.entity.JdAppEntity;
+import com.online.service.GoodsService;
 import com.online.utils.ToolsUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.core.enums.SysThemesEnum;
-import org.jeecgframework.core.util.ResourceUtil;
-import org.jeecgframework.core.util.SysThemesUtil;
+import org.jeecgframework.core.util.*;
 import org.jeecgframework.web.system.manager.ClientManager;
 import org.jeecgframework.web.system.pojo.base.TSRole;
 import org.jeecgframework.web.system.pojo.base.TSRoleUser;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +37,8 @@ public class IndexController {
     private Logger log = Logger.getLogger(IndexController.class);
     @Autowired
     private SystemService systemService;
+    @Autowired
+    private GoodsService goodsService;
 
     /**
      * 跳转到首页
@@ -41,6 +47,65 @@ public class IndexController {
     @RequestMapping(value = "/index",method = RequestMethod.GET)
     public String index() {
         return "index/index";
+    }
+
+    /**
+     * 跳转到首页
+     * @return
+     */
+    @RequestMapping(params = "goUpdateAccessToken",method = RequestMethod.GET)
+    public String goUpdateAccessToken(HttpServletRequest request) {
+        JdAppEntity jdApp = systemService.get(JdAppEntity.class, "1");
+        request.setAttribute("jdApp", jdApp);
+        return "system/index/updateAccessToken";
+    }
+
+    /**
+     * 修改密码
+     *
+     * @return
+     */
+    @RequestMapping(params = "updateAccessToken")
+    @ResponseBody
+    public AjaxJson updateAccessToken(HttpServletRequest request) {
+        AjaxJson j = new AjaxJson();
+        String id = oConvertUtils.getString(request.getParameter("id"));
+        String accessToken = oConvertUtils.getString(request.getParameter("accessToken"));
+        String refreshToken = oConvertUtils.getString(request.getParameter("refreshToken"));
+        JdAppEntity jdApp = systemService.get(JdAppEntity.class, id);
+        jdApp.setAccessToken(accessToken);
+        jdApp.setRefreshToken(refreshToken);
+        systemService.saveOrUpdate(jdApp);
+        j.setMsg("成功更新访问令牌");
+        return j;
+    }
+
+    /**
+     * 验证访问令牌是否过期
+     * @param accessToken
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "testExpires", method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxJson testExpires(String accessToken, HttpServletRequest request, HttpServletResponse response) throws JdException {
+        AjaxJson ajaxJson = goodsService.testExpires(accessToken);
+        return ajaxJson;
+    }
+
+    /**
+     * 开启自动授权功能
+     * @param refreshToken
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "openAuthorize", method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxJson openAuthorize(String refreshToken, HttpServletRequest request, HttpServletResponse response) throws JdException {
+        AjaxJson ajaxJson = goodsService.openAuthorize(refreshToken);
+        return ajaxJson;
     }
 
     /**
