@@ -32,6 +32,8 @@ public class JdAppEntity implements java.io.Serializable {
 	@Excel(name="url",width=15)
 	private String serverUrl;
 	private String refreshToken;
+	private String userId;
+	private String code;
 	
 	/**
 	 *方法: 取得java.lang.String
@@ -129,5 +131,23 @@ public class JdAppEntity implements java.io.Serializable {
 
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+
+	@Column(name ="USER_ID",nullable=true,length=36)
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	@Column(name ="CODE",nullable=true,length=32)
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 }

@@ -26,7 +26,7 @@
             <div class="col-sm-12">
                 <form id="goodsForm" method="get" class="form-horizontal">
                     <div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" style="margin-top: 20px;">
                             <div class="form-group">
                                 <c:choose>
                                     <c:when test="${fn:contains(goods.picture1,'https://')}">

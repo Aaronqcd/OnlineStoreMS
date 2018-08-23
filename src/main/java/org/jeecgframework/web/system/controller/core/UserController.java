@@ -1,17 +1,7 @@
 package org.jeecgframework.web.system.controller.core;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.online.entity.JdAppEntity;
+import com.online.service.GoodsService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.criterion.Property;
@@ -24,17 +14,7 @@ import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.common.model.json.ValidForm;
 import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.enums.SysThemesEnum;
-import org.jeecgframework.core.util.ExceptionUtil;
-import org.jeecgframework.core.util.IpUtil;
-import org.jeecgframework.core.util.ListtoMenu;
-import org.jeecgframework.core.util.MyBeanUtils;
-import org.jeecgframework.core.util.PasswordUtil;
-import org.jeecgframework.core.util.ResourceUtil;
-import org.jeecgframework.core.util.RoletoJson;
-import org.jeecgframework.core.util.SetListSort;
-import org.jeecgframework.core.util.StringUtil;
-import org.jeecgframework.core.util.SysThemesUtil;
-import org.jeecgframework.core.util.oConvertUtils;
+import org.jeecgframework.core.util.*;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
@@ -43,15 +23,7 @@ import org.jeecgframework.tag.core.easyui.TagUtil;
 import org.jeecgframework.tag.vo.datatable.DataTableReturn;
 import org.jeecgframework.tag.vo.datatable.DataTables;
 import org.jeecgframework.web.system.manager.ClientManager;
-import org.jeecgframework.web.system.pojo.base.InterroleEntity;
-import org.jeecgframework.web.system.pojo.base.InterroleUserEntity;
-import org.jeecgframework.web.system.pojo.base.TSDepart;
-import org.jeecgframework.web.system.pojo.base.TSFunction;
-import org.jeecgframework.web.system.pojo.base.TSRole;
-import org.jeecgframework.web.system.pojo.base.TSRoleFunction;
-import org.jeecgframework.web.system.pojo.base.TSRoleUser;
-import org.jeecgframework.web.system.pojo.base.TSUser;
-import org.jeecgframework.web.system.pojo.base.TSUserOrg;
+import org.jeecgframework.web.system.pojo.base.*;
 import org.jeecgframework.web.system.service.SystemService;
 import org.jeecgframework.web.system.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +37,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -83,6 +61,8 @@ public class UserController extends BaseController {
 
 	private UserService userService;
 	private SystemService systemService;
+	@Autowired
+	private GoodsService goodsService;
 
 	@Autowired
 	public void setSystemService(SystemService systemService) {
@@ -1516,5 +1496,50 @@ public class UserController extends BaseController {
 		}
 		req.setAttribute("tsDepart", tsDepart);
         return new ModelAndView("system/user/myOrgUser");
+	}
+
+	/**
+	 * 设置访问令牌
+	 * @param user
+	 */
+	@RequestMapping(params = "settingAccessToken")
+	public ModelAndView settingAccessToken(TSUser user, HttpServletRequest req) {
+		if (StringUtil.isNotEmpty(user.getId())) {
+			JdAppEntity jdApp = systemService.findUniqueByProperty(JdAppEntity.class, "userId", user.getId());
+			if(jdApp==null) {
+				jdApp = new JdAppEntity();
+				PropertiesUtil propertiesUtil = new PropertiesUtil("sysConfig.properties");
+				Properties properties = propertiesUtil.getProperties();
+				jdApp.setAppKey(properties.getProperty("app_key"));
+				jdApp.setAppSecret(properties.getProperty("app_secret"));
+				jdApp.setServerUrl(properties.getProperty("server_url"));
+			}
+			user = systemService.getEntity(TSUser.class, user.getId());
+			req.setAttribute("user", user);
+			req.setAttribute("jdApp", jdApp);
+		}
+		return new ModelAndView("system/user/settingAccessToken");
+	}
+
+	/**
+	 * 保存访问令牌
+	 * @param jdApp
+	 */
+	@RequestMapping(params = "saveJDApp")
+	@ResponseBody
+	public AjaxJson saveJDApp(JdAppEntity jdApp, HttpServletRequest req) {
+		AjaxJson ajaxJson = new AjaxJson();
+		JdAppEntity jdAppEntity = goodsService.getJDAppConfig(jdApp.getUserId());
+		jdAppEntity.setCode(jdApp.getCode());
+		jdAppEntity.setAccessToken(jdApp.getAccessToken());
+		jdAppEntity.setRefreshToken(jdApp.getRefreshToken());
+		if(jdApp.getId()!=null && !"".equals(jdApp.getId())) {
+			systemService.updateEntitie(jdAppEntity);
+		}
+		else {
+			systemService.save(jdApp);
+		}
+		ajaxJson.setMsg("成功设置访问令牌");
+		return ajaxJson;
 	}
 }

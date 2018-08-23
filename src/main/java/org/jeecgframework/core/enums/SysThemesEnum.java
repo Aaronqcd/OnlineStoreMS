@@ -81,11 +81,11 @@ public enum SysThemesEnum {
 			//默认风格
 			return HPLUS;
         }
-		for(SysThemesEnum item : SysThemesEnum.values()) {
+		/*for(SysThemesEnum item : SysThemesEnum.values()) {
 			if(item.getStyle().equals(style)) {
 				return item;
 			}
-		}
+		}*/
 		//默认风格
 		return HPLUS;
 	}

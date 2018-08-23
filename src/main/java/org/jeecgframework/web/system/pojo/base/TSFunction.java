@@ -1,20 +1,10 @@
 package org.jeecgframework.web.system.pojo.base;
+import org.jeecgframework.core.common.entity.IdEntity;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.Formula;
-import org.jeecgframework.core.common.entity.IdEntity;
 
 /**
  *菜单权限表
@@ -165,7 +155,7 @@ public class TSFunction extends IdEntity implements java.io.Serializable {
 	public boolean hasSubFunction(List<TSFunction> functions) {
 		for (TSFunction f : functions) {
 			if(f.getTSFunction()!=null){
-				if(f.getTSFunction().getId().equals(this.getId())){
+				if(f.getTSFunction().getId()!=null && f.getTSFunction().getId().equals(this.getId())){
 					return true;
 				}
 			}

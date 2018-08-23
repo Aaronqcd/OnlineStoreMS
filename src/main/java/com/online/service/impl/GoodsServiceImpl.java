@@ -28,11 +28,15 @@ import com.online.entity.JdAppEntity;
 import com.online.service.GoodsService;
 import com.online.utils.*;
 import org.jeecgframework.core.common.model.json.AjaxJson;
+import org.jeecgframework.core.util.PropertiesUtil;
+import org.jeecgframework.core.util.ResourceUtil;
+import org.jeecgframework.web.system.pojo.base.TSUser;
 import org.jeecgframework.web.system.service.SystemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -87,7 +91,8 @@ public class GoodsServiceImpl implements GoodsService {
      */
     public AjaxJson importStore(JDWareAddBean jdWareAddBean) throws IOException {
         AjaxJson ajaxJson = new AjaxJson();
-        JdAppEntity jdApp = systemService.get(JdAppEntity.class, "1");
+        TSUser user = ResourceUtil.getSessionUser();
+        JdAppEntity jdApp = systemService.findUniqueByProperty(JdAppEntity.class, "userId", user.getId());
         String accessToken = jdApp.getAccessToken();
         String appKey = jdApp.getAppKey();
         String appSecret = jdApp.getAppSecret();
@@ -141,6 +146,7 @@ public class GoodsServiceImpl implements GoodsService {
                 System.out.println("code: "+imageWriteUpdateResponse.getCode()+", desc: "+imageWriteUpdateResponse.getZhDesc()+
                         ", msg: "+imageWriteUpdateResponse.getMsg()+", url: "+imageWriteUpdateResponse.getUrl());
             }
+            ajaxJson.setMsg("成功导入至店铺");
         } catch (JdException e) {
             e.printStackTrace();
         }
@@ -222,7 +228,8 @@ public class GoodsServiceImpl implements GoodsService {
         JDWareAddBean jdWareAddBean = new JDWareAddBean();
         AjaxJson ajaxJson = new AjaxJson();
         GoodsEntity goods = (GoodsEntity) goodsDao.get(GoodsEntity.class, id);
-        JdAppEntity jdApp = systemService.get(JdAppEntity.class, "1");
+        TSUser user = ResourceUtil.getSessionUser();
+        JdAppEntity jdApp = systemService.findUniqueByProperty(JdAppEntity.class, "userId", user.getId());
         String accessToken = jdApp.getAccessToken();
         String appKey = jdApp.getAppKey();
         String appSecret = jdApp.getAppSecret();
@@ -243,6 +250,8 @@ public class GoodsServiceImpl implements GoodsService {
                 jdWareAddBean.setPic1(goods.getPicture1());
                 jdWareAddBean.setPic2(goods.getPicture2());
                 jdWareAddBean.setPic3(goods.getPicture3());
+                jdWareAddBean.setMarketPrice(goods.getChangePrice());
+                jdWareAddBean.setJdPrice(goods.getChangePrice());
                 //获取类目属性列表 jingdong.category.read.findAttrsByCategoryIdJos
                 CategoryReadFindAttrsByCategoryIdJosRequest categoryIdJosRequest=new CategoryReadFindAttrsByCategoryIdJosRequest();
                 categoryIdJosRequest.setCid(Long.valueOf(cate.getId()));
@@ -363,13 +372,10 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
-    public AjaxJson testExpires(String accessToken) throws JdException {
+    public AjaxJson testExpires(String userId, String accessToken) throws JdException {
         AjaxJson ajaxJson = new AjaxJson();
-        JdAppEntity jdApp = systemService.get(JdAppEntity.class, "1");
-        String appKey = jdApp.getAppKey();
-        String appSecret = jdApp.getAppSecret();
-        String serverUrl = jdApp.getServerUrl();
-        JdClient client=new DefaultJdClient(serverUrl,accessToken,appKey,appSecret);
+        JdAppEntity jdApp = getJDAppConfig(userId);
+        JdClient client=new DefaultJdClient(jdApp.getServerUrl(),accessToken,jdApp.getAppKey(),jdApp.getAppSecret());
         CategorySearchRequest request=new CategorySearchRequest();
         CategorySearchResponse response=client.execute(request);
         ajaxJson.setMsg(response.getMsg());
@@ -391,12 +397,10 @@ public class GoodsServiceImpl implements GoodsService {
      * @param refreshToken
      */
     @Override
-    public AjaxJson openAuthorize(String refreshToken) {
+    public AjaxJson openAuthorize(String userId, String refreshToken) {
         AjaxJson ajaxJson = new AjaxJson();
-        JdAppEntity jdApp = systemService.get(JdAppEntity.class, "1");
-        String appKey = jdApp.getAppKey();
-        String appSecret = jdApp.getAppSecret();
-        String url = "https://oauth.jd.com/oauth/token?client_id="+appKey+"&client_secret="+appSecret+
+        JdAppEntity jdApp = getJDAppConfig(userId);
+        String url = "https://oauth.jd.com/oauth/token?client_id="+jdApp.getAppKey()+"&client_secret="+jdApp.getAppSecret()+
                 "&grant_type=refresh_token&refresh_token="+refreshToken;
         String result = HttpClient4.doGet(url);
         JSONObject jsonObject = JSON.parseObject(result);
@@ -404,6 +408,97 @@ public class GoodsServiceImpl implements GoodsService {
         attributes.put("code", jsonObject.getString("code"));
         attributes.put("expires_in", jsonObject.getString("expires_in"));
         ajaxJson.setAttributes(attributes);
+        return ajaxJson;
+    }
+
+    /**
+     * 根据授权码获取访问令牌
+     * @param code
+     */
+    @Override
+    public AjaxJson getAccessToken(String userId, String code) {
+        AjaxJson ajaxJson = new AjaxJson();
+        JdAppEntity jdApp = getJDAppConfig(userId);
+        PropertiesUtil propertiesUtil = new PropertiesUtil("sysConfig.properties");
+        Properties properties = propertiesUtil.getProperties();
+        String redirectUri = properties.getProperty("redirect_uri");
+        String state = properties.getProperty("state");
+        String url = "https://oauth.jd.com/oauth/token?grant_type=authorization_code&client_id=" + jdApp.getAppKey() +
+                "&redirect_uri="+redirectUri+"&code="+code+"&state="+state+"&client_secret="+jdApp.getAppSecret();
+        String result = HttpClient4.doGet(url);
+        JSONObject jsonObject = JSON.parseObject(result);
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("accessToken", jsonObject.getString("access_token"));
+        attributes.put("refreshToken", jsonObject.getString("refresh_token"));
+        attributes.put("expires_in", jsonObject.getString("expires_in"));
+        attributes.put("code", jsonObject.getString("code"));
+        ajaxJson.setAttributes(attributes);
+        return ajaxJson;
+    }
+
+    public JdAppEntity getJDAppConfig(String userId) {
+        JdAppEntity jdApp = systemService.findUniqueByProperty(JdAppEntity.class, "userId", userId);
+        if(jdApp==null) {
+            jdApp = new JdAppEntity();
+            PropertiesUtil propertiesUtil = new PropertiesUtil("sysConfig.properties");
+            Properties properties = propertiesUtil.getProperties();
+            jdApp.setAppKey(properties.getProperty("app_key"));
+            jdApp.setAppSecret(properties.getProperty("app_secret"));
+            jdApp.setServerUrl(properties.getProperty("server_url"));
+        }
+        return jdApp;
+    }
+
+    /**
+     * 批量更改价格
+     * @param category
+     * @param way
+     * @param value
+     * @return
+     */
+    @Override
+    public AjaxJson batchChangePrice(String category, String way, String value) {
+        AjaxJson ajaxJson = new AjaxJson();
+        List<GoodsEntity> goodses = systemService.findByProperty(GoodsEntity.class, "category", category);
+        DecimalFormat df = new DecimalFormat("#.00");
+        for (GoodsEntity goods : goodses) {
+            String changePrice = "";
+            if(goods.getCustomPrice()==null || "".equals(goods.getCustomPrice())) {
+                String customPrice = "";
+                if(goods.getPrice()!=null && !"".equals(goods.getPrice())) {
+                    String prices[] = goods.getPrice().split("-");
+                    customPrice = prices[prices.length-1].trim();
+                }
+                goods.setCustomPrice(customPrice);
+            }
+            if(goods.getChangePrice()!=null && !"".equals(goods.getChangePrice())) {
+                changePrice = goods.getChangePrice();
+                if("1".equals(way)) {
+                    changePrice = df.format(Double.parseDouble(changePrice)*(1+
+                            Double.parseDouble(value)/100));
+                }
+                else if("2".equals(way)) {
+                    changePrice = df.format(Double.parseDouble(changePrice)+
+                            Double.parseDouble(value));
+                }
+                goods.setChangePrice(changePrice);
+                systemService.updateEntitie(goods);
+            }
+            else if(goods.getCustomPrice()!=null && !"".equals(goods.getCustomPrice())) {
+                changePrice = goods.getCustomPrice();
+                if("1".equals(way)) {
+                    changePrice = df.format(Double.parseDouble(changePrice)*(1+
+                            Double.parseDouble(value)/100));
+                }
+                else if("2".equals(way)) {
+                    changePrice = df.format(Double.parseDouble(changePrice)+
+                            Double.parseDouble(value));
+                }
+                goods.setChangePrice(changePrice);
+                systemService.updateEntitie(goods);
+            }
+        }
+        ajaxJson.setMsg("批量修改价格成功");
         return ajaxJson;
     }
 }

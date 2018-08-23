@@ -2,6 +2,7 @@ package com.online.service;
 
 import com.jd.open.api.sdk.JdException;
 import com.online.entity.GoodsEntity;
+import com.online.entity.JdAppEntity;
 import com.online.utils.JDWareAddBean;
 import com.online.utils.Page;
 import org.jeecgframework.core.common.model.json.AjaxJson;
@@ -52,11 +53,33 @@ public interface GoodsService {
      * 验证访问令牌是否过期
      * @param accessToken
      */
-    public AjaxJson testExpires(String accessToken) throws JdException;
+    public AjaxJson testExpires(String userId, String accessToken) throws JdException;
 
     /**
      * 开启自动授权功能
      * @param refreshToken
      */
-    public AjaxJson openAuthorize(String refreshToken);
+    public AjaxJson openAuthorize(String userId, String refreshToken);
+
+    /**
+     * 根据授权码获取访问令牌
+     * @param code
+     */
+    public AjaxJson getAccessToken(String userId, String code);
+
+    /**
+     * 根据用户id获取jdapp配置
+     * @param userId
+     * @return
+     */
+    public JdAppEntity getJDAppConfig(String userId);
+
+    /**
+     * 批量更改价格
+     * @param category
+     * @param way
+     * @param value
+     * @return
+     */
+    public AjaxJson batchChangePrice(String category, String way, String value);
 }

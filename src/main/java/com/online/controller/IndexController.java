@@ -89,8 +89,8 @@ public class IndexController {
      */
     @RequestMapping(value = "testExpires", method = RequestMethod.POST)
     @ResponseBody
-    public AjaxJson testExpires(String accessToken, HttpServletRequest request, HttpServletResponse response) throws JdException {
-        AjaxJson ajaxJson = goodsService.testExpires(accessToken);
+    public AjaxJson testExpires(String userId, String accessToken, HttpServletRequest request, HttpServletResponse response) throws JdException {
+        AjaxJson ajaxJson = goodsService.testExpires(userId, accessToken);
         return ajaxJson;
     }
 
@@ -103,8 +103,22 @@ public class IndexController {
      */
     @RequestMapping(value = "openAuthorize", method = RequestMethod.POST)
     @ResponseBody
-    public AjaxJson openAuthorize(String refreshToken, HttpServletRequest request, HttpServletResponse response) throws JdException {
-        AjaxJson ajaxJson = goodsService.openAuthorize(refreshToken);
+    public AjaxJson openAuthorize(String userId, String refreshToken, HttpServletRequest request, HttpServletResponse response) throws JdException {
+        AjaxJson ajaxJson = goodsService.openAuthorize(userId, refreshToken);
+        return ajaxJson;
+    }
+
+    /**
+     * 根据授权码获取访问令牌
+     * @param code
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "getAccessToken", method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxJson getAccessToken(String userId, String code, HttpServletRequest request, HttpServletResponse response) throws JdException {
+        AjaxJson ajaxJson = goodsService.getAccessToken(userId, code);
         return ajaxJson;
     }
 

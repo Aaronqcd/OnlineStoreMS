@@ -11,12 +11,13 @@
 	<t:dgCol title="common.department" sortable="false" field="userOrgList.tsDepart.departname" query="false" width="100"></t:dgCol>
 	<t:dgCol title="common.role" field="userKey" width="100"></t:dgCol>
 	<t:dgCol title="common.createby" field="createBy" hidden="true" width="100"></t:dgCol>
-	<t:dgCol title="common.createtime" field="createDate" formatter="yyyy-MM-dd"  width="50" hidden="false"></t:dgCol>
+	<t:dgCol title="common.createtime" field="createDate" formatter="yyyy-MM-dd"  width="100" hidden="false"></t:dgCol>
 	<t:dgCol title="common.updateby" field="updateBy" hidden="true"></t:dgCol>
 	<t:dgCol title="common.updatetime" field="updateDate" formatter="yyyy-MM-dd" hidden="true"></t:dgCol>
 	<t:dgCol title="common.status" sortable="true" field="status" width="50" replace="common.active_1,common.inactive_0,super.admin_-1" ></t:dgCol>
 	
-	<t:dgCol title="common.operation" field="opt" width="100"></t:dgCol>
+	<t:dgCol title="common.operation" field="opt" width="150"></t:dgCol>
+	<t:dgFunOpt funname="settingAccessToken(id)" title="设置访问令牌" urlclass="ace_button"  urlfont="fa-gear"></t:dgFunOpt>
 	<t:dgFunOpt funname="deleteDialog(id)" title="common.delete" urlclass="ace_button"  urlfont="fa-trash-o"></t:dgFunOpt>
 	<t:dgToolBar title="common.add.param" langArg="common.user" icon="icon-add" url="userController.do?addorupdate" funname="add" height="420"></t:dgToolBar>
 	<t:dgToolBar title="common.edit.param" langArg="common.user" icon="icon-edit" url="userController.do?addorupdate" funname="update"></t:dgToolBar>
@@ -50,6 +51,10 @@
 function deleteDialog(id){
 	var url = "userController.do?deleteDialog&id=" + id
 	createwindow("删除模式", url, 200, 100);
+}
+function settingAccessToken(id){
+	var url = "userController.do?settingAccessToken&id=" + id
+	createwindow("设置访问令牌", url, 600, 400);
 }
 function lockObj(title,url, id) {
 

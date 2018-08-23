@@ -16,7 +16,7 @@
                     <input type="hidden" name="id" value="${goods.id}" />
                     <input type="hidden" name="pageNo" value="${pageNo}" />
                     <div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-3" style="margin-top: 20px;">
                             <div class="form-group">
                                 <c:choose>
                                     <c:when test="${fn:contains(goods.picture1,'https://')}">

@@ -1,22 +1,7 @@
 package org.jeecgframework.web.cgform.controller.trans;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.jeecgframework.codegenerate.database.JeecgReadTable;
 import org.jeecgframework.codegenerate.pojo.Columnt;
@@ -35,6 +20,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * 自定义表单逆向生成
@@ -103,7 +95,7 @@ public class CgformTransController {
 		}
 	}
 
-	@RequestMapping(params = "transEditor")
+	@RequestMapping(params = "transEditor",produces = {"text/html;charset=utf-8"})
 	@ResponseBody
 	public AjaxJson transEditor(HttpServletRequest request, String id)
 			throws Exception {

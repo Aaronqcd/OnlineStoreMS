@@ -37,7 +37,12 @@ public class GoodsEntity implements java.io.Serializable {
 	private String picture2;
 	/**商品图片3*/
 	private String picture3;
+	/**商品图片4*/
 	private String picture4;
+	/**自定义价格*/
+	private String customPrice;
+	/**修改后的价格*/
+	private String changePrice;
 
 	/**
 	 *方法: 取得java.lang.Integer
@@ -259,4 +264,23 @@ public class GoodsEntity implements java.io.Serializable {
 	public void setPicture4(String picture4) {
 		this.picture4 = picture4;
 	}
+
+	@Column(name ="custom_price",nullable=true,length=50)
+	public String getCustomPrice() {
+		return customPrice;
+	}
+
+	public void setCustomPrice(String customPrice) {
+		this.customPrice = customPrice;
+	}
+
+	@Column(name ="change_price",nullable=true,length=50)
+	public String getChangePrice() {
+		return changePrice;
+	}
+
+	public void setChangePrice(String changePrice) {
+		this.changePrice = changePrice;
+	}
+
 }

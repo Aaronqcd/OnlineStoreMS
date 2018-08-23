@@ -125,6 +125,20 @@ public class GoodsController extends BaseController {
     }
 
     /**
+     * 跳转至批量更改价格的页面
+     * @param category
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/goBatchChangePrice",method = RequestMethod.GET)
+    public String goBatchChangePrice(String category, String pageNo, HttpServletRequest request, HttpServletResponse response) {
+        request.setAttribute("category", category);
+        request.setAttribute("pageNo", pageNo);
+        return "online/goods/batchChangePrice";
+    }
+
+    /**
      * 根据商品id修改商品信息
      * @param goods
      * @param pageNo
@@ -279,7 +293,7 @@ public class GoodsController extends BaseController {
         }*/
         /*j.setSuccess(true);
         j.setMsg("成功导入至店铺");*/
-        goodsService.importStore(jdWareAddBean);
+        j = goodsService.importStore(jdWareAddBean);
         return j;
     }
 
@@ -313,6 +327,23 @@ public class GoodsController extends BaseController {
         } catch (JdException e) {
             e.printStackTrace();
         }
+        return ajaxJson;
+    }
+
+    /**
+     * 批量更改价格
+     * @param category
+     * @param way
+     * @param value
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "batchChangePrice", method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxJson batchChangePrice(String category, String way, String value,
+                                       HttpServletRequest request, HttpServletResponse response) {
+        AjaxJson ajaxJson = goodsService.batchChangePrice(category, way, value);
         return ajaxJson;
     }
 

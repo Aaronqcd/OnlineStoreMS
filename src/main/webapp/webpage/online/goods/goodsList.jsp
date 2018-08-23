@@ -44,6 +44,7 @@
                 <button type="button" class="btn btn-primary" onclick="edit()">编辑</button>
                 <button type="button" class="btn btn-primary" onclick="del()">删除</button>
                 <button type="button" class="btn btn-primary" onclick="goImportStorePage()">导入至店铺</button>
+                <button type="button" class="btn btn-primary" onclick="goBatchChangePrice()">批量更改价格</button>
             </form>
         </div>
         <!-- 开始 -->
@@ -148,6 +149,7 @@
     var detailUrl = "${webRoot}/goodsController/detail.do";
     var editUrl = "${webRoot}/goodsController/goEdit.do";
     var goImportStoreUrl = "${webRoot}/goodsController/goImportStore.do";
+    var goBatchChangePriceUrl = "${webRoot}/goodsController/goBatchChangePrice.do";
     var getCategoryUrl = "${webRoot}/goodsController/category/all.do";
     var importStoreUrl = "${webRoot}/goodsController/importStore.do";
     var validateImportStoreUrl = "${webRoot}/goodsController/validateImportStore.do";
@@ -432,7 +434,7 @@
         var names = "";
         console.log(checkedNodes);
         for(var i=0; i<checkedNodes.length; i++) {
-            if(checkedNodes[i].check_Child_State!=1) {
+            if(checkedNodes[i].check_Child_State!=1 && !checkedNodes[i].isParent) {
                 codes += checkedNodes[i].code+",";
                 names += checkedNodes[i].name+",";
             }
@@ -528,7 +530,6 @@
                 scrollbar: false,
                 content: goImportStoreUrl+"?id="+goodsId+"&pageNo=${page.pageNo}",
                 end: function(){
-                    //location.href="${webRoot}/goodsController/showAll.do?pageNo=${page.pageNo}";
                 }
             });
         }
@@ -541,7 +542,44 @@
                 scrollbar: false,
                 content: goImportStoreUrl+"?id="+goodsId+"&pageNo=${page.pageNo}",
                 end: function(){
-                    //location.href="${webRoot}/goodsController/showAll.do?pageNo=${page.pageNo}";
+                }
+            });
+        }
+    }
+
+    function goBatchChangePrice() {
+        var category = $("[name='category']").val();
+        category = category.split(",");
+        if(category.length==1&&category[0]=='') {
+            alert("请选择一个商品类别");
+            return false;
+        }
+        else if(category.length>1) {
+            alert("只能选择一个商品类别");
+            return false;
+        }
+        if(screenHeight<=900) {
+            layer.open({
+                type: 2,
+                title: '批量更改价格',
+                maxmin: true,
+                offset: '50px',
+                area: ['600px', '300px'],
+                scrollbar: false,
+                content: goBatchChangePriceUrl+"?category="+category+"&pageNo=${page.pageNo}",
+                end: function(){
+                }
+            });
+        }
+        else {
+            layer.open({
+                type: 2,
+                title: '批量更改价格',
+                maxmin: true,
+                area: ['600px', '400px'],
+                scrollbar: false,
+                content: goBatchChangePriceUrl+"?category="+category+"&pageNo=${page.pageNo}",
+                end: function(){
                 }
             });
         }

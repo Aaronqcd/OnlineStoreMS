@@ -16,7 +16,7 @@
                     <input type="hidden" name="id" value="${goods.id}" />
                     <input type="hidden" name="pageNo" value="${pageNo}" />
                     <div>
-                        <div class="col-sm-12" id="goodsDiv">
+                        <div class="col-sm-12" id="goodsDiv" style="margin-top: 20px;">
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">商品类目</label>
                                 <div class="col-sm-9">
@@ -117,6 +117,8 @@
                 $("[name='pic1']").val(data.obj.pic1);
                 $("[name='pic2']").val(data.obj.pic2);
                 $("[name='pic3']").val(data.obj.pic3);
+                $("[name='marketPrice']").val(data.obj.marketPrice);
+                $("[name='jdPrice']").val(data.obj.jdPrice);
                 var html = "";
                 for(var i=0; i<data.obj.categories.length; i++) {
                     if(data.obj.categories[i].inputType==1 || data.obj.categories[i].inputType==2) {
@@ -165,6 +167,7 @@
             url: importStoreUrl+"?"+data+"&attributes="+attributes,
             success: function (data) {
                 console.log(data);
+                alert(data.msg);
             }
         });
     }
