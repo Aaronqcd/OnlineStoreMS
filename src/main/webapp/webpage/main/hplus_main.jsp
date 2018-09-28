@@ -41,7 +41,7 @@
             <ul class="nav" id="side-menu">
                 <li class="nav-header">
                     <div class="dropdown profile-element" style="height:100px">
-                                <%--<span><img alt="image" width="180" height="61" src="plug-in/login/images/jeecg-aceplus.png" /></span>--%>
+                                <span><img alt="image" width="100%" height="100%" src="images/logo.png" /></span>
                             <%--dangzhenghui end 20170502 for 增加添加头像功能--%>
                             <%--//update-start--Author: chenj Date:20160726 for: TASK #1207 [改造]h+风格下，去掉logo下面的内容，迁移位置到右上角，主题位置
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
@@ -151,11 +151,11 @@
                                 </a>
                             </li>
                             <li><a href="javascript:openwindow('<t:mutiLang langKey="common.profile"/>','userController.do?userinfo')"><t:mutiLang langKey="common.profile"/></a></li>
-                            <li>
+                            <%--<li>
                                 <a href="javascript:add('更新访问令牌','indexController.do?goUpdateAccessToken','',550,200)">
                                     设置访问令牌
                                 </a>
-                            </li>
+                            </li>--%>
                             <%--<li><a href="javascript:openwindow('<t:mutiLang langKey="common.ssms.getSysInfos"/>','tSSmsController.do?getSysInfos')"><t:mutiLang langKey="common.ssms.getSysInfos"/></a></li>
                             <li><a href="javascript:add('<t:mutiLang langKey="common.change.style"/>','userController.do?changestyle','',550,250)"><t:mutiLang langKey="common.my.style"/></a></li>
                             <li><a href="javascript:toSwagger()">Swagger接口</a></li>

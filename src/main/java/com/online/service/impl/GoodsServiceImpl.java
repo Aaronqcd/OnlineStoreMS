@@ -5,20 +5,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.open.api.sdk.DefaultJdClient;
 import com.jd.open.api.sdk.JdClient;
 import com.jd.open.api.sdk.JdException;
-import com.jd.open.api.sdk.domain.category.Category;
 import com.jd.open.api.sdk.domain.list.CategoryAttrReadService.CategoryAttrJos;
 import com.jd.open.api.sdk.domain.list.CategoryAttrReadService.FeatureCateAttrJos;
 import com.jd.open.api.sdk.domain.list.CategoryAttrValueReadService.CategoryAttrValueJos;
-import com.jd.open.api.sdk.request.category.CategorySearchRequest;
+import com.jd.open.api.sdk.domain.seller.CategorySafService.Category;
+import com.jd.open.api.sdk.domain.seller.CategorySafService.CategoryResult;
 import com.jd.open.api.sdk.request.imgzone.ImgzonePictureUploadRequest;
 import com.jd.open.api.sdk.request.list.CategoryReadFindAttrsByCategoryIdJosRequest;
 import com.jd.open.api.sdk.request.list.CategoryReadFindValuesByAttrIdJosRequest;
+import com.jd.open.api.sdk.request.seller.VenderCategoryGetValidCategoryResultByVenderIdRequest;
 import com.jd.open.api.sdk.request.ware.ImageWriteUpdateRequest;
 import com.jd.open.api.sdk.request.ware.WareAddRequest;
-import com.jd.open.api.sdk.response.category.CategorySearchResponse;
 import com.jd.open.api.sdk.response.imgzone.ImgzonePictureUploadResponse;
 import com.jd.open.api.sdk.response.list.CategoryReadFindAttrsByCategoryIdJosResponse;
 import com.jd.open.api.sdk.response.list.CategoryReadFindValuesByAttrIdJosResponse;
+import com.jd.open.api.sdk.response.seller.VenderCategoryGetValidCategoryResultByVenderIdResponse;
 import com.jd.open.api.sdk.response.ware.ImageWriteUpdateResponse;
 import com.jd.open.api.sdk.response.ware.WareAddResponse;
 import com.online.dao.GoodsDao;
@@ -27,13 +28,16 @@ import com.online.entity.GoodsEntity;
 import com.online.entity.JdAppEntity;
 import com.online.service.GoodsService;
 import com.online.utils.*;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.core.util.PropertiesUtil;
 import org.jeecgframework.core.util.ResourceUtil;
 import org.jeecgframework.web.system.pojo.base.TSUser;
 import org.jeecgframework.web.system.service.SystemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -168,7 +172,7 @@ public class GoodsServiceImpl implements GoodsService {
         JdClient client=new DefaultJdClient(serverUrl,accessToken,appKey,appSecret);
         WareAddRequest request=new WareAddRequest();
         ToolsUtil toolsUtil = new ToolsUtil();
-        List<Category> categories = JDApiUtil.getWarecats(serverUrl,accessToken,appKey,appSecret);
+        CategoryResult categoryResult = JDApiUtil.getWarecats(serverUrl,accessToken,appKey,appSecret);
         CategoryEntity category = systemService.findUniqueByProperty(CategoryEntity.class, "code", goods.getCategory());
         String name = category.getName();
         /*int i = 0;
@@ -237,15 +241,15 @@ public class GoodsServiceImpl implements GoodsService {
         JdClient client=new DefaultJdClient(serverUrl,accessToken,appKey,appSecret);
         WareAddRequest request=new WareAddRequest();
         ToolsUtil toolsUtil = new ToolsUtil();
-        List<Category> categories = JDApiUtil.getWarecats(serverUrl,accessToken,appKey,appSecret);
+        CategoryResult categoryResult = JDApiUtil.getWarecats(serverUrl,accessToken,appKey,appSecret);
         CategoryEntity category = systemService.findUniqueByProperty(CategoryEntity.class, "code", goods.getCategory());
         String name = category.getName();
         int i = 0;
-        for (Category cate : categories) {
-            if(cate.getName().equals(category.getName())) {
+        for (Category cate: categoryResult.getList()) {
+            if(cate.getName()[0].equals(category.getName())) {
                 i++;
                 jdWareAddBean.setCid(String.valueOf(cate.getId()));
-                jdWareAddBean.setCname(cate.getName());
+                jdWareAddBean.setCname(cate.getName()[0]);
                 jdWareAddBean.setTitle(goods.getTitle());
                 jdWareAddBean.setPic1(goods.getPicture1());
                 jdWareAddBean.setPic2(goods.getPicture2());
@@ -254,7 +258,7 @@ public class GoodsServiceImpl implements GoodsService {
                 jdWareAddBean.setJdPrice(goods.getChangePrice());
                 //获取类目属性列表 jingdong.category.read.findAttrsByCategoryIdJos
                 CategoryReadFindAttrsByCategoryIdJosRequest categoryIdJosRequest=new CategoryReadFindAttrsByCategoryIdJosRequest();
-                categoryIdJosRequest.setCid(Long.valueOf(cate.getId()));
+                categoryIdJosRequest.setCid(Long.valueOf(cate.getId()[0]));
                 try {
                     CategoryReadFindAttrsByCategoryIdJosResponse categoryIdJosResponse = client.execute(categoryIdJosRequest);
                     //获取类目属性列表
@@ -348,16 +352,17 @@ public class GoodsServiceImpl implements GoodsService {
     public AjaxJson validateImportStore(Integer id) {
         AjaxJson ajaxJson = new AjaxJson();
         GoodsEntity goods = (GoodsEntity) goodsDao.get(GoodsEntity.class, id);
-        JdAppEntity jdApp = systemService.get(JdAppEntity.class, "1");
+        TSUser user = ResourceUtil.getSessionUser();
+        JdAppEntity jdApp = getJDAppConfig(user.getId());
         String accessToken = jdApp.getAccessToken();
         String appKey = jdApp.getAppKey();
         String appSecret = jdApp.getAppSecret();
         String serverUrl = jdApp.getServerUrl();
-        List<Category> categories = JDApiUtil.getWarecats(serverUrl,accessToken,appKey,appSecret);
+        CategoryResult categoryResult = JDApiUtil.getWarecats(serverUrl,accessToken,appKey,appSecret);
         CategoryEntity category = systemService.findUniqueByProperty(CategoryEntity.class, "code", goods.getCategory());
         int i = 0;
-        for (Category cate : categories) {
-            if(cate.getName().equals(category.getName())) {
+        for (Category cate : categoryResult.getList()) {
+            if(cate.getName()[0].equals(category.getName())) {
                 i++;
                 ajaxJson.setSuccess(true);
                 ajaxJson.setMsg("商家已开通 " + category.getName() + " 商品类目");
@@ -376,8 +381,10 @@ public class GoodsServiceImpl implements GoodsService {
         AjaxJson ajaxJson = new AjaxJson();
         JdAppEntity jdApp = getJDAppConfig(userId);
         JdClient client=new DefaultJdClient(jdApp.getServerUrl(),accessToken,jdApp.getAppKey(),jdApp.getAppSecret());
-        CategorySearchRequest request=new CategorySearchRequest();
-        CategorySearchResponse response=client.execute(request);
+        VenderCategoryGetValidCategoryResultByVenderIdRequest request = new VenderCategoryGetValidCategoryResultByVenderIdRequest();
+        VenderCategoryGetValidCategoryResultByVenderIdResponse response = client.execute(request);
+        /*CategorySearchRequest request=new CategorySearchRequest();
+        CategorySearchResponse response=client.execute(request);*/
         ajaxJson.setMsg(response.getMsg());
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("code", response.getCode());
@@ -457,48 +464,274 @@ public class GoodsServiceImpl implements GoodsService {
      * @return
      */
     @Override
-    public AjaxJson batchChangePrice(String category, String way, String value) {
+    public AjaxJson batchChangePrice(String category, String data, String way, String value) {
         AjaxJson ajaxJson = new AjaxJson();
         List<GoodsEntity> goodses = systemService.findByProperty(GoodsEntity.class, "category", category);
         DecimalFormat df = new DecimalFormat("#.00");
         for (GoodsEntity goods : goodses) {
-            String changePrice = "";
-            if(goods.getCustomPrice()==null || "".equals(goods.getCustomPrice())) {
-                String customPrice = "";
-                if(goods.getPrice()!=null && !"".equals(goods.getPrice())) {
-                    String prices[] = goods.getPrice().split("-");
-                    customPrice = prices[prices.length-1].trim();
+            //批量修改所有数据的价格
+            if("1".equals(data)) {
+                String changePrice = "";
+                if(goods.getCustomPrice()==null || "".equals(goods.getCustomPrice())) {
+                    String customPrice = "";
+                    if(goods.getPrice()!=null && !"".equals(goods.getPrice())) {
+                        String prices[] = goods.getPrice().split("-");
+                        customPrice = prices[prices.length-1].trim();
+                    }
+                    goods.setCustomPrice(customPrice);
                 }
-                goods.setCustomPrice(customPrice);
+                if(goods.getChangePrice()!=null && !"".equals(goods.getChangePrice())) {
+                    changePrice = goods.getChangePrice();
+                    if("1".equals(way)) {
+                        changePrice = df.format(Double.parseDouble(changePrice)*(1+
+                                Double.parseDouble(value)/100));
+                    }
+                    else if("2".equals(way)) {
+                        changePrice = df.format(Double.parseDouble(changePrice)+
+                                Double.parseDouble(value));
+                    }
+                    goods.setChangePrice(changePrice);
+                    systemService.updateEntitie(goods);
+                }
+                else if(goods.getCustomPrice()!=null && !"".equals(goods.getCustomPrice())) {
+                    changePrice = goods.getCustomPrice();
+                    if("1".equals(way)) {
+                        changePrice = df.format(Double.parseDouble(changePrice)*(1+
+                                Double.parseDouble(value)/100));
+                    }
+                    else if("2".equals(way)) {
+                        changePrice = df.format(Double.parseDouble(changePrice)+
+                                Double.parseDouble(value));
+                    }
+                    goods.setChangePrice(changePrice);
+                    systemService.updateEntitie(goods);
+                }
             }
-            if(goods.getChangePrice()!=null && !"".equals(goods.getChangePrice())) {
-                changePrice = goods.getChangePrice();
-                if("1".equals(way)) {
-                    changePrice = df.format(Double.parseDouble(changePrice)*(1+
-                            Double.parseDouble(value)/100));
+            //批量修改还未更改价格的数据的价格
+            else if("2".equals(data)) {
+                if(goods.getCustomPrice()==null || "".equals(goods.getCustomPrice())) {
+                    String changePrice = "";
+                    if(goods.getCustomPrice()==null || "".equals(goods.getCustomPrice())) {
+                        String customPrice = "";
+                        if(goods.getPrice()!=null && !"".equals(goods.getPrice())) {
+                            String prices[] = goods.getPrice().split("-");
+                            customPrice = prices[prices.length-1].trim();
+                        }
+                        goods.setCustomPrice(customPrice);
+                    }
+                    if(goods.getChangePrice()!=null && !"".equals(goods.getChangePrice())) {
+                        changePrice = goods.getChangePrice();
+                        if("1".equals(way)) {
+                            changePrice = df.format(Double.parseDouble(changePrice)*(1+
+                                    Double.parseDouble(value)/100));
+                        }
+                        else if("2".equals(way)) {
+                            changePrice = df.format(Double.parseDouble(changePrice)+
+                                    Double.parseDouble(value));
+                        }
+                        goods.setChangePrice(changePrice);
+                        systemService.updateEntitie(goods);
+                    }
+                    else if(goods.getCustomPrice()!=null && !"".equals(goods.getCustomPrice())) {
+                        changePrice = goods.getCustomPrice();
+                        if("1".equals(way)) {
+                            changePrice = df.format(Double.parseDouble(changePrice)*(1+
+                                    Double.parseDouble(value)/100));
+                        }
+                        else if("2".equals(way)) {
+                            changePrice = df.format(Double.parseDouble(changePrice)+
+                                    Double.parseDouble(value));
+                        }
+                        goods.setChangePrice(changePrice);
+                        systemService.updateEntitie(goods);
+                    }
                 }
-                else if("2".equals(way)) {
-                    changePrice = df.format(Double.parseDouble(changePrice)+
-                            Double.parseDouble(value));
-                }
-                goods.setChangePrice(changePrice);
-                systemService.updateEntitie(goods);
-            }
-            else if(goods.getCustomPrice()!=null && !"".equals(goods.getCustomPrice())) {
-                changePrice = goods.getCustomPrice();
-                if("1".equals(way)) {
-                    changePrice = df.format(Double.parseDouble(changePrice)*(1+
-                            Double.parseDouble(value)/100));
-                }
-                else if("2".equals(way)) {
-                    changePrice = df.format(Double.parseDouble(changePrice)+
-                            Double.parseDouble(value));
-                }
-                goods.setChangePrice(changePrice);
-                systemService.updateEntitie(goods);
             }
         }
         ajaxJson.setMsg("批量修改价格成功");
+        return ajaxJson;
+    }
+
+    /**
+     * 导出商品数据到excel
+     * @param category
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public HSSFWorkbook batchExportExcel(String category) throws Exception {
+        //获取数据
+        List<GoodsEntity> goodses = systemService.findByProperty(GoodsEntity.class, "category", category);
+        AjaxJson ajaxJson = getImportStoreData(goodses.get(0).getId());
+        JDWareAddBean jdWareAddBean = (JDWareAddBean) ajaxJson.getObj();
+        int size = 13+jdWareAddBean.getCategories().size();
+        List<JDCategoryBean> jdCategoryBeans = jdWareAddBean.getCategories();
+        //excel标题
+        String[] title = new String[size];
+        title[0] = "标识";
+        title[1] = "商品分类";
+        title[2] = "商品标题";
+        title[3] = "抓取时间";
+        title[4] = "原店铺链接";
+        title[5] = "自定义价格";
+        title[6] = "修改后的价格";
+        title[7] = "库存";
+        title[8] = "长(单位:mm)";
+        title[9] = "宽(单位:mm)";
+        title[10] = "高(单位:mm)";
+        title[11] = "重量(单位:kg)";
+        title[12] = "描述（最多支持3万个英文字符）";
+        for(int i=0; i<jdCategoryBeans.size(); i++) {
+            title[13+i] = jdCategoryBeans.get(i).getAttName();
+        }
+
+        //sheet名
+        String sheetName = "商品表";
+        String[][] content = new String[goodses.size()][];
+
+        for (int i = 0; i < goodses.size(); i++) {
+            content[i] = new String[title.length];
+            GoodsEntity obj = goodses.get(i);
+            CategoryEntity categoryEntity = systemService.findUniqueByProperty(CategoryEntity.class, "code", obj.getCategory());
+            content[i][0] = String.valueOf(obj.getId());
+            content[i][1] = categoryEntity.getName();
+            content[i][2] = String.valueOf(obj.getTitle());
+            content[i][3] = String.valueOf(obj.getGrabDate());
+            content[i][4] = String.valueOf(obj.getLink());
+            content[i][5] = String.valueOf(obj.getCustomPrice());
+            content[i][6] = String.valueOf(obj.getChangePrice());
+            content[i][7] = "";
+            content[i][8] = "";
+            content[i][9] = "";
+            content[i][10] = "";
+            content[i][11] = "";
+            content[i][12] = "";
+            for(int j=0; j<jdCategoryBeans.size(); j++) {
+                if("1".equals(jdCategoryBeans.get(j).getInputType()) && jdCategoryBeans.get(j).getAttrValues().size()==1) {
+                    content[i][13+j] = jdCategoryBeans.get(j).getAttrValues().get(0).getValue();
+                }
+                else {
+                    content[i][13+j] = "";
+                }
+            }
+        }
+
+        //创建HSSFWorkbook
+        HSSFWorkbook wb = ExcelUtil.getHSSFWorkbook(sheetName, title, content, null);
+        return wb;
+    }
+
+    /**
+     * 执行批量导入商品至京东店铺
+     * @param category
+     * @param fileMap
+     * @return
+     * @throws IOException
+     */
+    @Override
+    @Async
+    public AjaxJson importExcel(String category, Map<String, MultipartFile> fileMap) throws IOException {
+        CategoryEntity categoryEntity = systemService.findUniqueByProperty(CategoryEntity.class, "code", category);
+        TSUser user = ResourceUtil.getSessionUser();
+        JdAppEntity jdApp = getJDAppConfig(user.getId());
+        String accessToken = jdApp.getAccessToken();
+        String appKey = jdApp.getAppKey();
+        String appSecret = jdApp.getAppSecret();
+        String serverUrl = jdApp.getServerUrl();
+        CategoryResult categoryResult = JDApiUtil.getWarecats(serverUrl,accessToken,appKey,appSecret);
+        String cid = "";
+        ToolsUtil toolsUtil = new ToolsUtil();
+        //根据类别名获取京东店铺上的类别id
+        for (Category cate : categoryResult.getList()) {
+            if(cate.getName()[0].equals(categoryEntity.getName())) {
+                cid = cate.getId()[0]+"";
+            }
+        }
+        AjaxJson ajaxJson = new AjaxJson();
+        int i=0;
+        //获取该类别的商品需要必填的属性
+        List<JDCategoryBean> jdCategoryBeans = JDApiUtil.getAttrsByCategory(serverUrl,accessToken,appKey,appSecret,cid);
+        for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
+            if(i==0) {
+                MultipartFile file = entity.getValue();// 获取上传文件对象
+                List<String[]> datas = ExcelData.getExcelData(file);
+                for(int j=1; j<4; j++) {
+                    JdClient client=new DefaultJdClient(serverUrl,accessToken,appKey,appSecret);
+                    WareAddRequest request=new WareAddRequest();
+                    request.setCid(cid);
+                    request.setTitle(datas.get(j)[2]);
+                    request.setStockNum(datas.get(j)[7]);
+                    request.setLength(datas.get(j)[8]);
+                    request.setWide(datas.get(j)[9]);
+                    request.setHigh(datas.get(j)[10]);
+                    request.setWeight(datas.get(j)[11]);
+                    request.setMarketPrice(datas.get(j)[6]);
+                    request.setJdPrice(datas.get(j)[6]);
+                    request.setNotes(datas.get(j)[2]);
+                    GoodsEntity goods = null;
+                    try {
+                        //获取该商品的详细信息
+                        goods = systemService.get(GoodsEntity.class, Integer.parseInt(datas.get(j)[0]));
+                        request.setWareImage(toolsUtil.getFile(goods.getPicture1()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    //查询京东店铺里面是否有该商品title,如果存在,则中止上传此商品
+                    Long num = JDApiUtil.searchWare4Valid(serverUrl,accessToken,appKey,appSecret,goods.getTitle());
+                    if(num>0) {
+                        continue;
+                    }
+                    StringBuffer stringBuffer = new StringBuffer();
+                    int n = 13;
+                    //设置商品的属性,格式为:16009:338820|110108:629525|110107:629515|110103:629492|10075859:20|10075858:180|10075857:180|10075855:橡胶木
+                    for (JDCategoryBean jdCategoryBean : jdCategoryBeans) {
+                        stringBuffer.append(jdCategoryBean.getCategoryAttrId()+":");
+                        if("1".equals(jdCategoryBean.getInputType())) {
+                            for (JDCategoryAttrValueBean jdCategoryAttrValueBean :jdCategoryBean.getAttrValues()) {
+                                if(jdCategoryAttrValueBean.getValue().equals(datas.get(j)[n])) {
+                                    stringBuffer.append(jdCategoryAttrValueBean.getId()+"|");
+                                }
+                            }
+                        }
+                        else if("3".equals(jdCategoryBean.getInputType())) {
+                            stringBuffer.append(datas.get(j)[n]+"|");
+                        }
+                        n++;
+                    }
+                    String attr = stringBuffer.substring(0, stringBuffer.length()-1);
+                    request.setAttributes(attr);
+                    try {
+                        //添加商品至京东店铺
+                        WareAddResponse response=client.execute(request);
+                        System.out.println("code: "+response.getCode()+", desc: "+response.getZhDesc()+
+                                ", msg: "+response.getMsg()+", url: "+response.getUrl());
+                        long wareId = response.getWareId();
+                        String[] url = new String[2];
+                        url[0] = goods.getPicture2();
+                        url[1] = goods.getPicture3();
+                        //上传商品图片
+                        for(int m=2; m<4; m++) {
+                            ImgzonePictureUploadRequest imgzonePictureUploadRequest = new ImgzonePictureUploadRequest();
+                            imgzonePictureUploadRequest.setImageData(toolsUtil.getFile(url[m-2]));
+                            ImgzonePictureUploadResponse imgzonePictureUploadResponse = client.execute(imgzonePictureUploadRequest);
+                            ImageWriteUpdateRequest imageWriteUpdateRequest = new ImageWriteUpdateRequest();
+                            imageWriteUpdateRequest.setWareId(wareId);
+                            imageWriteUpdateRequest.setColorId("0000000000");
+                            imageWriteUpdateRequest.setImgIndex(String.valueOf(m));
+                            imageWriteUpdateRequest.setImgUrl(imgzonePictureUploadResponse.getPictureUrl());
+                            ImageWriteUpdateResponse imageWriteUpdateResponse = client.execute(imageWriteUpdateRequest);
+                            System.out.println("code: "+imageWriteUpdateResponse.getCode()+", desc: "+imageWriteUpdateResponse.getZhDesc()+
+                                    ", msg: "+imageWriteUpdateResponse.getMsg()+", url: "+imageWriteUpdateResponse.getUrl());
+                        }
+                        ajaxJson.setMsg("成功导入至店铺");
+                    } catch (JdException e) {
+                        e.printStackTrace();
+                    }
+                }
+                ajaxJson.setObj(datas);
+            }
+            i++;
+        }
         return ajaxJson;
     }
 }

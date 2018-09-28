@@ -5,7 +5,9 @@ import com.online.entity.GoodsEntity;
 import com.online.entity.JdAppEntity;
 import com.online.utils.JDWareAddBean;
 import com.online.utils.Page;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.jeecgframework.core.common.model.json.AjaxJson;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
@@ -81,5 +83,22 @@ public interface GoodsService {
      * @param value
      * @return
      */
-    public AjaxJson batchChangePrice(String category, String way, String value);
+    public AjaxJson batchChangePrice(String category, String data, String way, String value);
+
+    /**
+     * 导出商品数据到excel
+     * @param category
+     * @return
+     * @throws Exception
+     */
+    public HSSFWorkbook batchExportExcel(String category) throws Exception;
+
+    /**
+     * 执行批量导入商品至京东店铺
+     * @param category
+     * @param fileMap
+     * @return
+     * @throws IOException
+     */
+    public AjaxJson importExcel(String category, Map<String, MultipartFile> fileMap) throws IOException;
 }

@@ -23,12 +23,23 @@
             transform: scale(1.5); /*放大1.2倍*/
         }
     </style>--%>
+    <style>
+        .search-box {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding-top: 10px;
+            margin-top: 10px;
+            margin-right: 50px;
+            position: fixed;
+            z-index: 999;
+        }
+    </style>
 </head>
 <body>
     <div class="container">  <!-- 开加一个container的目的是为了让整体布局居中 -->
-        <div class="row" style="border: 1px solid #ddd;border-radius: 4px;padding-top: 10px;margin-top: 10px">
+        <div class="row search-box">
             <form class="form-inline" style="padding-left: 10px">
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 10px;">
                     <label for="category">商品类别：</label>
                     <input type="hidden" name="category" value="${map['category']}" />
                     <input type="text" id="category" class="form-control" readonly placeholder="-----请选择商品类别-----" value="${map['categoryName']}" />
@@ -45,10 +56,12 @@
                 <button type="button" class="btn btn-primary" onclick="del()">删除</button>
                 <button type="button" class="btn btn-primary" onclick="goImportStorePage()">导入至店铺</button>
                 <button type="button" class="btn btn-primary" onclick="goBatchChangePrice()">批量更改价格</button>
+                <button type="button" class="btn btn-primary" onclick="batchExportExcel()">excel批量导出</button>
+                <button type="button" class="btn btn-primary" onclick="goBatchImportStorePage()">批量导入至店铺</button>
             </form>
         </div>
         <!-- 开始 -->
-        <div class="row" style="padding-top:10px"><!-- 将要加入的略缩图放入row中 -->
+        <div class="row" style="padding-top:120px"><!-- 将要加入的略缩图放入row中 -->
         <c:choose>
             <c:when test="${page.totalRecords>0}">
             <c:forEach var="good" items="${goods}">
@@ -153,6 +166,8 @@
     var getCategoryUrl = "${webRoot}/goodsController/category/all.do";
     var importStoreUrl = "${webRoot}/goodsController/importStore.do";
     var validateImportStoreUrl = "${webRoot}/goodsController/validateImportStore.do";
+    var batchExportExcelUrl = "${webRoot}/goodsController/batchExportExcel.do";
+    var leadInUrl = "${webRoot}/goodsController/leadIn.do";
     var setting = {
         check: {
             enable: true,
@@ -579,6 +594,46 @@
                 area: ['600px', '400px'],
                 scrollbar: false,
                 content: goBatchChangePriceUrl+"?category="+category+"&pageNo=${page.pageNo}",
+                end: function(){
+                }
+            });
+        }
+    }
+    function batchExportExcel() {
+        var category = $("[name='category']").val();
+        category = category.split(",");
+        if(category.length==1&&category[0]=='') {
+            alert("请选择一个商品类别");
+            return false;
+        }
+        else if(category.length>1) {
+            alert("只能选择一个商品类别");
+            return false;
+        }
+        location.href=batchExportExcelUrl+"?category="+category+"&pageNo=${page.pageNo}"
+    }
+    //批量导入至店铺
+    function goBatchImportStorePage() {
+        if(screenHeight<=900) {
+            layer.open({
+                type: 2,
+                title: '导入',
+                maxmin: true,
+                offset: '50px',
+                area: ['800px', '400px'],
+                content: leadInUrl,
+                end: function(){
+                }
+            });
+        }
+        else {
+            layer.open({
+                type: 2,
+                title: '导入',
+                maxmin: true,
+                offset: '50px',
+                area: ['800px', '700px'],
+                content: leadInUrl,
                 end: function(){
                 }
             });

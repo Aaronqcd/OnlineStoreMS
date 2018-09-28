@@ -19,7 +19,7 @@ public class GoodsEntity implements java.io.Serializable {
 	private String title;
 	/**商品价格*/
 	private String price;
-	/**淘宝价*/
+	/**抓取售价*/
 	private String taobaoPrice;
 	/**交易数*/
 	private String dealNumber;
@@ -113,7 +113,7 @@ public class GoodsEntity implements java.io.Serializable {
 	}
 	/**
 	 *方法: 取得java.lang.String
-	 *@return: java.lang.String  淘宝价
+	 *@return: java.lang.String  抓取售价
 	 */
 	@Column(name ="TAOBAO_PRICE",nullable=true,length=50)
 	public String getTaobaoPrice(){
@@ -122,7 +122,7 @@ public class GoodsEntity implements java.io.Serializable {
 
 	/**
 	 *方法: 设置java.lang.String
-	 *@param: java.lang.String  淘宝价
+	 *@param: java.lang.String  抓取售价
 	 */
 	public void setTaobaoPrice(String taobaoPrice){
 		this.taobaoPrice = taobaoPrice;

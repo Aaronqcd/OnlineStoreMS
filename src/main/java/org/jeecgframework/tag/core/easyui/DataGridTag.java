@@ -1,41 +1,17 @@
 package org.jeecgframework.tag.core.easyui;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.JspWriter;
-
+import com.google.gson.Gson;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.online.util.FreemarkerHelper;
-import org.jeecgframework.core.util.ApplicationContextUtil;
-import org.jeecgframework.core.util.ContextHolderUtils;
-import org.jeecgframework.core.util.MutiLangUtil;
-import org.jeecgframework.core.util.ResourceUtil;
-import org.jeecgframework.core.util.StringUtil;
-import org.jeecgframework.core.util.SysThemesUtil;
-import org.jeecgframework.core.util.oConvertUtils;
+import org.jeecgframework.core.util.*;
 import org.jeecgframework.tag.core.JeecgTag;
 import org.jeecgframework.tag.vo.easyui.ColumnValue;
 import org.jeecgframework.tag.vo.easyui.DataGridColumn;
 import org.jeecgframework.tag.vo.easyui.DataGridUrl;
 import org.jeecgframework.tag.vo.easyui.OptTypeDirection;
-import org.jeecgframework.web.cgform.common.CgAutoListConstant;
 import org.jeecgframework.web.cgform.entity.config.CgFormHeadEntity;
 import org.jeecgframework.web.cgform.entity.config.CgSubTableVO;
 import org.jeecgframework.web.cgform.service.config.CgFormFieldServiceI;
@@ -45,7 +21,16 @@ import org.jeecgframework.web.system.pojo.base.TSType;
 import org.jeecgframework.web.system.service.SystemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.gson.Gson;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.JspWriter;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -2506,6 +2491,9 @@ public class DataGridTag extends JeecgTag {
 	 * @frozen 0 冰冻列    1 普通列
 	 */
 	protected void getField(StringBuffer sb,int frozen) {
+		HttpServletRequest req = ContextHolderUtils.getRequest();
+		String contextPath = req.getContextPath();
+		String basePath = req.getScheme()+"://"+req.getServerName()+":"+req.getServerPort()+contextPath;
 		// 复选框
 		if (checkbox&&frozen==0) {
 			sb.append("{field:\'ck\',checkbox:\'true\'},");
@@ -2642,14 +2630,18 @@ public class DataGridTag extends JeecgTag {
 						sb.append(" return '<img border=\"0\" src=\"'+value+'\"/>';}");
 					}
 				} else if(column.getDownloadName() != null){
+
 	            	sb.append(",formatter:function(value,rec,index){");
 
 	            	sb.append("var html = '';");
 
 	            	sb.append("if(value==null || value.length==0){return html;}");
 
-	            	sb.append("if(value.indexOf('.jpg')>-1 || value.indexOf('.png')>-1 || value.indexOf('.jpeg')>-1 || value.indexOf('.gif') > -1){");
-	            	sb.append(" html = '<img onMouseOver=\"tipImg(this)\" onMouseOut=\"moveTipImg()\" src=\"'+value+'\" width=50 height=50/>';");
+	            	sb.append("if(value.toLowerCase().indexOf('.jpg')>-1 || value.toLowerCase().indexOf('.png')>-1 || value.toLowerCase().indexOf('.jpeg')>-1 || value.toLowerCase().indexOf('.gif') > -1){");
+	            	sb.append("if(value.indexOf('https://')>-1){");
+					sb.append(" html = '<img onMouseOver=\"tipImg(this)\" onMouseOut=\"moveTipImg()\" src=\"'+value+'\" width=50 height=50/>';}");
+					sb.append("else{");
+					sb.append(" html = '<img onMouseOver=\"tipImg(this)\" onMouseOut=\"moveTipImg()\" src=\"'+basePath+\"/\"+value+'\" width=50 height=50/>';}");
 	            	sb.append("}else{");
 	                sb.append(" html = '<a class=\"ace_button fa fa-download\" style=\"padding:3px 5px;\" target=\"_blank\" href=\"'+value+'\">"
 	                		+ column.getDownloadName() + "</a>';}");

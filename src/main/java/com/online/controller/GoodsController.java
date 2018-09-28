@@ -7,6 +7,7 @@ import com.online.service.GoodsService;
 import com.online.utils.JDWareAddBean;
 import com.online.utils.Page;
 import com.online.utils.ZtreeUtil;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.poi.util.PoiPublicUtil;
@@ -22,8 +23,10 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -136,6 +139,17 @@ public class GoodsController extends BaseController {
         request.setAttribute("category", category);
         request.setAttribute("pageNo", pageNo);
         return "online/goods/batchChangePrice";
+    }
+
+    /**
+     * 跳转至批量导入至店铺的页面
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/leadIn",method = RequestMethod.GET)
+    public String leadIn(HttpServletRequest request, HttpServletResponse response) {
+        return "online/goods/leadIn";
     }
 
     /**
@@ -341,10 +355,100 @@ public class GoodsController extends BaseController {
      */
     @RequestMapping(value = "batchChangePrice", method = RequestMethod.POST)
     @ResponseBody
-    public AjaxJson batchChangePrice(String category, String way, String value,
+    public AjaxJson batchChangePrice(String category, String data, String way, String value,
                                        HttpServletRequest request, HttpServletResponse response) {
-        AjaxJson ajaxJson = goodsService.batchChangePrice(category, way, value);
+        AjaxJson ajaxJson = goodsService.batchChangePrice(category, data, way, value);
         return ajaxJson;
+    }
+
+    @RequestMapping(value = "/downloadPic", method = RequestMethod.GET)
+    public void downloadPic(String url, String title, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String[] fileNameParts = url.split("/");
+        String fileName = fileNameParts[fileNameParts.length - 1];
+        String suffix = fileName.substring(fileName.lastIndexOf("."), fileName.length());
+        InputStream is = null;
+        try {
+            URL picUrl = new URL(url);
+            URLConnection con = picUrl.openConnection();
+            // 设置超时间为3秒
+            con.setConnectTimeout(3 * 1000);
+            // 防止屏蔽程序抓取而返回403错误
+            con.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
+            is = con.getInputStream();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        response.setContentType("application/octet-stream");
+        String filename = URLEncoder.encode(title, "UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + filename + suffix);
+        OutputStream out = new BufferedOutputStream(response.getOutputStream());
+        int len;
+        byte[] buffer = new byte[1024];
+        while ((len = is.read(buffer)) > 0) {
+            out.write(buffer, 0, len);
+        }
+        is.close();
+        out.flush();
+        out.close();
+    }
+
+    /**
+     * 导出商品数据到excel
+     * @return
+     */
+    @RequestMapping(value = "/batchExportExcel", method = RequestMethod.GET)
+    @ResponseBody
+    public void batchExportExcel(String category, HttpServletRequest request,HttpServletResponse response) throws Exception {
+        //获取HSSFWorkbook
+        HSSFWorkbook wb = goodsService.batchExportExcel(category);
+        CategoryEntity categoryEntity = systemService.findUniqueByProperty(CategoryEntity.class, "code", category);
+        //excel文件名
+        String fileName = "商品表-"+categoryEntity.getName()+System.currentTimeMillis()+".xls";
+
+        //响应到客户端
+        try {
+            this.setResponseHeader(response, fileName);
+            OutputStream os = response.getOutputStream();
+            wb.write(os);
+            os.flush();
+            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //发送响应流方法
+    public void setResponseHeader(HttpServletResponse response, String fileName) {
+        try {
+            try {
+                fileName = new String(fileName.getBytes(),"ISO8859-1");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            response.setContentType("application/octet-stream;charset=ISO8859-1");
+            response.setHeader("Content-Disposition", "attachment;filename="+ fileName);
+            response.addHeader("Pargam", "no-cache");
+            response.addHeader("Cache-Control", "no-cache");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * 通过excel批量导入商品至店铺
+     * @param request
+     * @param response
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value = "importExcel", method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxJson importExcel(String category, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        AjaxJson j = new AjaxJson();
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+        Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+        j = goodsService.importExcel(category, fileMap);
+        return j;
     }
 
 }

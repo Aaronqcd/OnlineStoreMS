@@ -112,7 +112,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-3 control-label">淘宝价</label>
+                                <label class="col-sm-3 control-label">抓取售价</label>
                                 <div class="col-sm-9">
                                     <p class="form-control-static">¥${goods.taobaoPrice}</p>
                                 </div>

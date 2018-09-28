@@ -18,9 +18,20 @@
                     <div>
                         <div class="col-sm-12" id="goodsDiv" style="margin-top: 20px;">
                             <div class="form-group">
+                                <label class="col-sm-3 control-label">更改数据</label>
+                                <div class="col-sm-9">
+                                    <select id="data" name="data" class="form-control">
+                                        <option value="">-----请选择更改数据-----</option>
+                                        <option value="1">所有数据</option>
+                                        <option value="2">还未更改价格的数据</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-3 control-label">更改方式</label>
                                 <div class="col-sm-9">
                                     <select id="way" name="way" class="form-control">
+                                        <option value="">-----请选择更改方式-----</option>
                                         <option value="1">按百分比增加价格</option>
                                         <option value="2">按固定额增加价格</option>
                                     </select>
@@ -60,9 +71,18 @@
     });
 
     function changePrice() {
+        var data = $("#data").val();
         var way = $("#way").val();
         var value = $("#value").val();
         var reg = /^[+]{0,1}(\d+)$|^[+]{0,1}(\d+\.\d+)$/;
+        if(data=='') {
+            alert("请选择更改数据");
+            return false;
+        }
+        if(way=='') {
+            alert("请选择更改方式");
+            return false;
+        }
         if(!reg.test(value)) {
             alert("值必须是非负数");
             return false;
@@ -73,6 +93,7 @@
             url: batchChangePriceUrl,
             data: {
                 category: $("[name='category']").val(),
+                data: data,
                 way: way,
                 value: value
             },

@@ -12,10 +12,9 @@ import org.jeecgframework.web.system.service.SystemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpSession;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -191,5 +190,67 @@ public class ToolsUtil {
         byte[] data = outStream.toByteArray();
         System.out.println(data.toString());
         return data;
+    }
+
+    //链接url下载图片
+    public void downloadPicture(String urlList,String path) {
+        URL url = null;
+        try {
+            url = new URL(urlList);
+            DataInputStream dataInputStream = new DataInputStream(url.openStream());
+
+            FileOutputStream fileOutputStream = new FileOutputStream(new File(path));
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+            byte[] buffer = new byte[1024];
+            int length;
+
+            while ((length = dataInputStream.read(buffer)) > 0) {
+                output.write(buffer, 0, length);
+            }
+            fileOutputStream.write(output.toByteArray());
+            dataInputStream.close();
+            fileOutputStream.close();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 通过get请求得到读取器响应数据的数据流
+    public InputStream getInputStreamByGet(String url) {
+        try {
+            HttpURLConnection conn = (HttpURLConnection) new URL(url)
+                    .openConnection();
+            conn.setReadTimeout(5000);
+            conn.setConnectTimeout(5000);
+            conn.setRequestMethod("GET");
+
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = conn.getInputStream();
+                return inputStream;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // 将服务器响应的数据流存到本地文件
+    public void saveData(InputStream is, File file) {
+        try (BufferedInputStream bis = new BufferedInputStream(is);
+             BufferedOutputStream bos = new BufferedOutputStream(
+                     new FileOutputStream(file));) {
+            byte[] buffer = new byte[1024];
+            int len = -1;
+            while ((len = bis.read(buffer)) != -1) {
+                bos.write(buffer, 0, len);
+                bos.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
